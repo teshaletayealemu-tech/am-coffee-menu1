@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="am" class="h-full bg-stone-100">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>A.M Coffee & Juice - Digital Menu</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              500: '#f97316', // Vibrant Orange
+              600: '#ea580c',
+              800: '#4a2e2b', // Espresso Brown
+              900: '#2c1a14', // Dark Roast
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'Noto Sans Ethiopic', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts for Ethiopic (Amharic) and Modern English -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- QRCode.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- React & ReactDOM & Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar & Utility styling */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .animate-bounce-short {
+      animation: pulse-subtle 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body class="h-full text-stone-800 antialiased font-sans select-none bg-stone-900 flex justify-center">
+
+  <div id="root" class="w-full max-w-md bg-stone-50 min-h-screen relative shadow-2xl flex flex-col pb-24 overflow-x-hidden"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useMemo, useRef } = React;
+
+    // --- COMPLETE MENU DATA ---
+    const MENU_ITEMS = [
+      // Breakfast / ቁርስ
+      { id: 'b1', cat: 'breakfast', name: { en: 'Normal Fetira', am: 'ኖርማል ፈጢራ' }, price: 200, desc: { en: 'Crispy baked flatbread served with honey', am: 'በማር የሚቀርብ ጥብስ ፈጢራ' }, tags: ['Popular'] },
+      { id: 'b2', cat: 'breakfast', name: { en: 'Special Fetira', am: 'ስፔሻል ፈጢራ' }, price: 300, desc: { en: 'Loaded with Honey, Fresh Avocado & Fried Egg', am: 'በማር፣ አቮካዶ እና እንቁላል የተዘጋጀ' }, tags: ['Chef Special'] },
+      { id: 'b3', cat: 'breakfast', name: { en: 'Ful', am: 'ፉል' }, price: 300, desc: { en: 'Slow-cooked fava beans with olive oil, tomatoes, onions & green pepper', am: 'በዘይት፣ ቲማቲም፣ ቃሪያና ሽንኩርት የተሰራ' }, tags: ['Traditional'] },
+      { id: 'b4', cat: 'breakfast', name: { en: 'Special Ful', am: 'ስፔሻል ፉል' }, price: 450, desc: { en: 'Rich fava beans topped with Fresh Yoghurt & Boiled/Fried Egg', am: 'በእርጎ እና እንቁላል ያሸበረቀ ፉል' }, tags: ['Popular'] },
+      { id: 'b5', cat: 'breakfast', name: { en: 'Normal Chechebsa', am: 'ኖርማል ጨጨብሳ' }, price: 300, desc: { en: 'Torn flatbread fried in spiced butter (Kibe) or oil with berbere', am: 'በኮረሪማና በቅቤ የተጠበሰ ጨጨብሳ' }, tags: ['Traditional'] },
+      { id: 'b6', cat: 'breakfast', name: { en: 'Special Chechebsa', am: 'ስፔሻል ጨጨብሳ' }, price: 450, desc: { en: 'Chechebsa topped with pure Honey & Fried Egg', am: 'በማር እና እንቁላል የታጀበ ስፔሻል ጨጨብሳ' }, tags: ['Best Seller'] },
+      { id: 'b7', cat: 'breakfast', name: { en: 'Enkulal Firfir', am: 'እንቁላል ፍርፍር' }, price: 350, desc: { en: 'Scrambled eggs cooked with onions, tomatoes & jalapeno peppers', am: 'በሽንኩርት፣ ቲማቲምና ቃሪያ የተሰራ እንቁላል' }, tags: ['Quick Choice'] },
+      { id: 'b8', cat: 'breakfast', name: { en: 'Egg Sandwich', am: 'የእንቁላል ሳንድዊች' }, price: 350, desc: { en: 'Fresh sandwich bread filled with seasoned scrambled eggs', am: 'በእንቁላል የተሞላ ጣፋጭ ሳንድዊች' }, tags: [] },
+      { id: 'b9', cat: 'breakfast', name: { en: 'Tuna Sandwich', am: 'የቱና ሳንድዊች' }, price: 450, desc: { en: 'Premium tuna salad filling with fresh veggies and mayonnaise', am: 'በቱና እና በፈስካ አትክልት የተዘጋጀ' }, tags: [] },
+      { id: 'b10', cat: 'breakfast', name: { en: 'Omelet', am: 'ኦምሌት' }, price: 550, desc: { en: 'Fluffy double egg omelet served with Avocado slices & French Chips', am: 'ከአቮካዶ እና ፍሬንች ቺፕስ ጋር የሚቀርብ' }, tags: ['Filling'] },
+
+      // Lunch & Dinner / ምሳ እና እራት
+      { id: 'l1', cat: 'lunch', name: { en: 'Vegetable Wrap', am: 'የአትክልት ራፕ' }, price: 350, desc: { en: 'Tortilla wrapped with sautéed seasonal veggies & avocado', am: 'በተለያዩ አትክልቶችና አቮካዶ የተጠቀለለ' }, tags: ['Fasting / Vegan'] },
+      { id: 'l2', cat: 'lunch', name: { en: 'Tuna with Egg Wrap', am: 'ቱና ከእንቁላል ራፕ' }, price: 500, desc: { en: 'Tuna flakes, boiled egg, lettuce and house sauce wrapped tight', am: 'ቱና፣ እንቁላል እና ሰላጣ የተጠቀለለ' }, tags: ['High Protein'] },
+      { id: 'l3', cat: 'lunch', name: { en: 'Chicken Wrap', am: 'የዶሮ ራፕ' }, price: 600, desc: { en: 'Grilled spiced chicken strips with crunchy veggies & sauce', am: 'በቅመም የተጠበሰ የዶሮ ስጋ ከላጣ ጋር' }, tags: ['Chef Special'] },
+
+      // Snack / መክሰስ
+      { id: 's1', cat: 'snack', name: { en: 'French Fries', am: 'ፍሬንች ፍራይስ (ቺፕስ)' }, price: 280, desc: { en: 'Golden crisp potato chips with ketchup & mayo dipping sauce', am: 'በጠበሰ ድንች የተዘጋጀ ቺፕስ' }, tags: ['Classic'] },
+      { id: 's2', cat: 'snack', name: { en: 'Spring Roll', am: 'ስፕሪንግ ሮል' }, price: 300, desc: { en: 'Crispy fried veggie filled spring rolls', am: 'በአትክልት የተሞላ ጥብስ ስፕሪንግ ሮል' }, tags: ['Crunchy'] },
+      { id: 's3', cat: 'snack', name: { en: 'French Fries with Cheese', am: 'ቺፕስ በቺዝ' }, price: 350, desc: { en: 'Crispy French fries smothered in melted mozzarella/cheddar cheese', am: 'በቀለጠ ቺዝ ያሸበረቀ ቺፕስ' }, tags: ['Cheesy'] },
+      { id: 's4', cat: 'snack', name: { en: 'Sanbusa Ye Mesir (6 pcs)', am: 'የምስር ሳምቡሳ (6 ፍሬ)' }, price: 350, desc: { en: '6 pieces of crispy pastries filled with spiced lentils & green pepper', am: '6 ፍሬ በምስርና ቅመም የተሞላ ሳምቡሳ' }, tags: ['Fasting / Vegan'] },
+      { id: 's5', cat: 'snack', name: { en: 'Sanbusa Ye Sega (6 pcs)', am: 'የስጋ ሳምቡሳ (6 ፍሬ)' }, price: 500, desc: { en: '6 pieces of golden pastry filled with seasoned minced beef', am: '6 ፍሬ በስጋ የተሞላ ጥብስ ሳምቡሳ' }, tags: ['Favorite'] },
+
+      // Hot Drink / ትኩስ መጠጦች
+      { id: 'h1', cat: 'hot', name: { en: 'Tea', am: 'ሻይ' }, price: 50, desc: { en: 'Freshly brewed black tea infused with spices', am: 'በቅመም የፈላ ትኩስ ሻይ' }, tags: [] },
+      { id: 'h2', cat: 'hot', name: { en: 'Ginger Tea', am: 'የዝንጅብል ሻይ' }, price: 70, desc: { en: 'Warming black tea brewed with fresh spicy ginger root', am: 'በዝንጅብል የፈላ ህይወት ሰጪ ሻይ' }, tags: ['Health Boost'] },
+      { id: 'h3', cat: 'hot', name: { en: 'Black Tea', am: 'ጥቁር ሻይ' }, price: 80, desc: { en: 'Strong aromatic pure black tea', am: 'ጠንካራ ጥቁር ሻይ' }, tags: [] },
+      { id: 'h4', cat: 'hot', name: { en: 'Espresso', am: 'ኤስፕሬሶ' }, price: 80, desc: { en: 'Single shot of rich Ethiopian Arabica coffee', am: 'የኢትዮጵያ ንጹህ ኤስፕሬሶ ቡና' }, tags: ['Bold'] },
+      { id: 'h5', cat: 'hot', name: { en: 'Sprice (Coffee & Tea)', am: 'ስፕሪስ (ቡና እና ሻይ)' }, price: 80, desc: { en: 'Unique Ethiopian blend of tea layered with fresh coffee shot', am: 'የሻይ እና ቡና ቅልቅል ስፕሪስ' }, tags: ['Local Classic'] },
+      { id: 'h6', cat: 'hot', name: { en: 'Double Espresso', am: 'ደብል ኤስፕሬሶ' }, price: 120, desc: { en: 'Double shot of concentrated espresso coffee', am: 'ድርብ ኤስፕሬሶ ቡና' }, tags: ['Strong'] },
+      { id: 'h7', cat: 'hot', name: { en: 'Macchiato', am: 'ማኪያቶ' }, price: 100, desc: { en: 'Espresso stained with a dash of warm steamed milk foam', am: 'በወተት አረፋ የተሰራ ጣፋጭ ማኪያቶ' }, tags: ['Popular'] },
+      { id: 'h8', cat: 'hot', name: { en: 'Latte', am: 'ላቴ' }, price: 150, desc: { en: 'Smooth espresso with plenty of creamy steamed milk', am: 'በለሰለሰ ወተት የተዘጋጀ ላቴ' }, tags: [] },
+      { id: 'h9', cat: 'hot', name: { en: 'Special Tea', am: 'ስፔሻል ሻይ' }, price: 200, desc: { en: 'Spiced aromatic tea with cloves, cinnamon, lemon & honey', am: 'በቅርንፉድ፣ ቀረፋና ማር የተሰራ ልዩ ሻይ' }, tags: ['Special'] },
+      { id: 'h10', cat: 'hot', name: { en: 'Fasting Macchiato', am: 'የጾም ማኪያቶ' }, price: 200, desc: { en: 'Macchiato made with non-dairy plant milk foam', am: 'በጾም ወተት የተሰራ ማኪያቶ' }, tags: ['Fasting / Vegan'] },
+      { id: 'h11', cat: 'hot', name: { en: 'Peanut Tea', am: 'የለውዝ ሻይ' }, price: 200, desc: { en: 'Creamy spiced tea mixed with pure roasted peanut paste', am: 'በለውዝ ክሬም የተሰራ ልዩ ትኩስ መጠጥ' }, tags: ['Nutty & Rich'] },
+      { id: 'h12', cat: 'hot', name: { en: 'Hot Chocolate', am: 'ሆት ቾኮሌት' }, price: 220, desc: { en: 'Rich cocoa steamed with hot milk and touch of vanilla', am: 'በወተት የተጠበሰ ጣፋጭ ቾኮሌት' }, tags: ['Sweet'] },
+
+      // Juice / ጁስ
+      { id: 'j1', cat: 'juice', name: { en: 'Avocado Juice', am: 'የአቮካዶ ጁስ' }, price: 200, desc: { en: 'Creamy fresh avocado blend topped with a splash of lime/Vimto', am: 'ወፍራም ና ትኩስ የአቮካዶ ጁስ' }, tags: ['Best Seller'] },
+      { id: 'j2', cat: 'juice', name: { en: 'Mango Juice', am: 'የማንጎ ጁስ' }, price: 200, desc: { en: 'Sweet ripe tropical mango juice', am: 'ጣፋጭ የተፈጥሮ የማንጎ ጁስ' }, tags: ['Sweet'] },
+      { id: 'j3', cat: 'juice', name: { en: 'Papaya Juice', am: 'የፓፓያ ጁስ' }, price: 180, desc: { en: 'Fresh sun-ripened papaya puree', am: 'ትኩስ የፓፓያ ጁስ' }, tags: ['Refreshing'] },
+      { id: 'j4', cat: 'juice', name: { en: 'Watermelon Juice', am: 'የሀብሀብ ጁስ' }, price: 180, desc: { en: 'Hydrating pure pressed watermelon juice', am: 'ቀዝቃዛ እና አሪፍ የሀብሀብ ጁስ' }, tags: ['Hydrating'] },
+      { id: 'j5', cat: 'juice', name: { en: 'Strawberry Juice', am: 'የእንጆሪ ጁስ' }, price: 220, desc: { en: 'Fresh mountain strawberries blended with ice', am: 'ከትኩስ እንጆሪ የተቀመመ' }, tags: ['Seasonal'] },
+      { id: 'j6', cat: 'juice', name: { en: 'Mixed Special Juice (Sprice)', am: 'ስፕሪስ ልዩ ጁስ' }, price: 250, desc: { en: 'Layered fresh fruit cocktail: Avocado, Mango, Papaya & Vimto drizzle', am: 'የአቮካዶ፣ ማንጎ እና ፓፓያ ድንቅ ቅልቅል' }, tags: ['Signature'] },
+
+      // Detox Juice / ዲቶክስ ጁስ
+      { id: 'd1', cat: 'detox', name: { en: 'Green Detox', am: 'ግሪን ዲቶክስ' }, price: 250, desc: { en: 'Fresh Spinach, Green Apple, Ginger & Fresh Lemon', am: 'ከስፒናች፣ አረንጓዴ ፖም፣ ዝንጅብልና ሎሚ የተሰራ' }, tags: ['Healthy'] },
+      { id: 'd2', cat: 'detox', name: { en: 'Beetroot & Carrot Boost', am: 'ቀይ ስር እና ካሮት ዲቶክስ' }, price: 230, desc: { en: 'Fresh Beetroot, Sweet Carrot, Orange & Ginger blend', am: 'ከቀይ ስር፣ ካሮት እና ብርቱካን የተዘጋጀ' }, tags: ['Vitamins'] },
+      { id: 'd3', cat: 'detox', name: { en: 'Ginger Lemon Immunity Shot', am: 'ዝንጅብል እና ሎሚ Shot' }, price: 150, desc: { en: 'Concentrated ginger, lemon & honey immune boosting shot', am: 'የዝንጅብል፣ ሎሚ እና ማር ሃይለኛ ቅልቅል' }, tags: ['Immunity'] },
+
+      // Soft Drink / ለስላሳ መጠጦች
+      { id: 'sd1', cat: 'soft', name: { en: 'Bottled Water', am: 'የታሸገ ውሃ' }, price: 40, desc: { en: 'Pure natural mineral spring water (500ml)', am: 'ንጹህ የታሸገ ተፈጥሮአዊ ውሃ (500ml)' }, tags: [] },
+      { id: 'sd2', cat: 'soft', name: { en: 'Soft Drinks (Coke / Sprite / Fanta)', am: 'ለስላሳ መጠጦች (ኮካ / ስፕራይት / ፋንታ)' }, price: 70, desc: { en: 'Chilled carbonated soft drinks of your choice', am: 'ቀዝቃዛ ኮካ ኮላ፣ ስፕራይት ወይም ፋንታ' }, tags: [] },
+      { id: 'sd3', cat: 'soft', name: { en: 'Sparkling Water (Ambo Water)', am: 'አምቦ ውሃ' }, price: 70, desc: { en: 'Chilled natural sparkling mineral water', am: 'ቀዝቃዛ አምቦ ውሃ' }, tags: [] },
+    ];
+
+    const CATEGORIES = [
+      { id: 'all', label: { en: 'All Items', am: 'ሁሉም' }, icon: '🍽️' },
+      { id: 'breakfast', label: { en: 'Breakfast', am: 'ቁርስ' }, icon: '🍳' },
+      { id: 'lunch', label: { en: 'Lunch & Dinner', am: 'ምሳ እና እራት' }, icon: '🌯' },
+      { id: 'snack', label: { en: 'Snacks', am: 'መክሰስ' }, icon: '🍟' },
+      { id: 'hot', label: { en: 'Hot Drinks', am: 'ትኩስ መጠጦች' }, icon: '☕' },
+      { id: 'juice', label: { en: 'Fresh Juices', am: 'ጁስ' }, icon: '🍹' },
+      { id: 'detox', label: { en: 'Detox Juices', am: 'ዲቶክስ ጁስ' }, icon: '🌿' },
+      { id: 'soft', label: { en: 'Soft Drinks', am: 'ለስላሳ መጠጦች' }, icon: '🥤' },
+    ];
+
+    // --- MAIN APP COMPONENT ---
+    function App() {
+      const [lang, setLang] = useState('am'); // 'am' or 'en'
+      const [selectedCat, setSelectedCat] = useState('all');
+      const [searchQuery, setSearchQuery] = useState('');
+      const [tableNum, setTableNum] = useState('1');
+      const [cart, setCart] = useState({}); // { itemId: { item, qty, note } }
+      const [isCartOpen, setIsCartOpen] = useState(false);
+      const [selectedItemForNote, setSelectedItemForNote] = useState(null);
+      const [tempNote, setTempNote] = useState('');
+      
+      // Order confirmation screen state
+      const [confirmedOrder, setConfirmedOrder] = useState(null);
+      const [showQRModal, setShowQRModal] = useState(false);
+
+      // Extract table parameter from URL if available (e.g., ?table=5)
+      useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const t = params.get('table');
+        if (t) setTableNum(t);
+      }, []);
+
+      // Toggle language handler
+      const toggleLang = () => setLang(prev => (prev === 'am' ? 'en' : 'am'));
+
+      // Cart Calculations
+      const cartCount = useMemo(() => {
+        return Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
+      }, [cart]);
+
+      const cartTotal = useMemo(() => {
+        return Object.values(cart).reduce((sum, item) => sum + (item.item.price * item.qty), 0);
+      }, [cart]);
+
+      // Add to Cart
+      const addToCart = (item, e) => {
+        if (e) e.stopPropagation();
+        setCart(prev => {
+          const existing = prev[item.id];
+          const newQty = existing ? existing.qty + 1 : 1;
+          return {
+            ...prev,
+            [item.id]: { item, qty: newQty, note: existing ? existing.note : '' }
+          };
+        });
+      };
+
+      // Remove / Decrement
+      const removeFromCart = (itemId, e) => {
+        if (e) e.stopPropagation();
+        setCart(prev => {
+          const existing = prev[itemId];
+          if (!existing) return prev;
+          if (existing.qty <= 1) {
+            const updated = { ...prev };
+            delete updated[itemId];
+            return updated;
+          }
+          return {
+            ...prev,
+            [itemId]: { ...existing, qty: existing.qty - 1 }
+          };
+        });
+      };
+
+      // Open Custom Note Modal for item
+      const openNoteModal = (item) => {
+        setSelectedItemForNote(item);
+        setTempNote(cart[item.id]?.note || '');
+      };
+
+      const saveNote = () => {
+        if (!selectedItemForNote) return;
+        const itemId = selectedItemForNote.id;
+        setCart(prev => {
+          const existing = prev[itemId] || { item: selectedItemForNote, qty: 1, note: '' };
+          return {
+            ...prev,
+            [itemId]: { ...existing, note: tempNote }
+          };
+        });
+        setSelectedItemForNote(null);
+        setTempNote('');
+      };
+
+      // Place Order trigger
+      const handlePlaceOrder = () => {
+        if (cartCount === 0) return;
+        const orderId = 'AM-' + Math.floor(1000 + Math.random() * 9000);
+        const orderData = {
+          orderId,
+          tableNum,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          date: new Date().toLocaleDateString(),
+          items: Object.values(cart),
+          total: cartTotal
+        };
+        setConfirmedOrder(orderData);
+        setIsCartOpen(false);
+        setCart({});
+      };
+
+      // Filtered items
+      const filteredItems = useMemo(() => {
+        return MENU_ITEMS.filter(item => {
+          const matchCat = selectedCat === 'all' || item.cat === selectedCat;
+          const query = searchQuery.toLowerCase().trim();
+          const matchSearch = !query || 
+            item.name.en.toLowerCase().includes(query) ||
+            item.name.am.includes(query) ||
+            item.desc.en.toLowerCase().includes(query) ||
+            item.desc.am.includes(query);
+          return matchCat && matchSearch;
+        });
+      }, [selectedCat, searchQuery]);
+
+      return (
+        <div className="flex flex-col min-h-screen">
+          
+          <!-- TOP HEADER BAR -->
+          <header className="sticky top-0 z-30 bg-brand-900 text-stone-100 shadow-md border-b border-brand-800">
+            <div className="px-4 py-3 flex items-center justify-between">
+              
+              {/* Brand Logo & Name */}
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-amber-400 flex items-center justify-center text-white font-extrabold text-xl shadow-lg border border-amber-300">
+                  AM
+                </div>
+                <div>
+                  <h1 className="font-bold text-base leading-tight tracking-wide text-amber-100">
+                    A.M Coffee & Juice
+                  </h1>
+                  <p className="text-xs text-amber-300 font-medium">
+                    {lang === 'am' ? 'ካፌ እና የጁስ ባር' : 'Café & Juice Bar'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Controls Right: Table Selector & Lang Switcher */}
+              <div className="flex items-center space-x-2">
+                
+                {/* Table Picker Badge */}
+                <div className="bg-stone-800/80 border border-brand-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 text-xs text-amber-200">
+                  <span className="text-stone-400 font-semibold">{lang === 'am' ? 'ጠረጴዛ' : 'Table'}</span>
+                  <select 
+                    value={tableNum} 
+                    onChange={(e) => setTableNum(e.target.value)}
+                    className="bg-transparent text-amber-400 font-bold focus:outline-none cursor-pointer"
+                  >
+                    {[...Array(20)].map((_, i) => (
+                      <option key={i+1} value={i+1} className="bg-stone-900 text-white">#{i+1}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Language Switch Button */}
+                <button
+                  onClick={toggleLang}
+                  className="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg shadow transition active:scale-95 flex items-center space-x-1"
+                  title="Toggle Amharic / English"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                  </svg>
+                  <span>{lang === 'am' ? 'EN' : 'አማርኛ'}</span>
+                </button>
+              </div>
+
+            </div>
+
+            {/* SEARCH & QUICK ACTION BAR */}
+            <div className="px-4 pb-3 pt-1 bg-brand-900/90">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={lang === 'am' ? 'ምግብ ወይም መጠጥ ፈልግ...' : 'Search coffee, juice, food...'}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-stone-800/90 text-stone-100 placeholder-stone-400 text-sm pl-9 pr-8 py-2 rounded-xl border border-stone-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+                <svg className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-2.5 text-stone-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* HORIZONTAL CATEGORY SCROLLER */}
+            <div className="px-3 py-2 bg-stone-900 border-t border-stone-800 flex space-x-2 overflow-x-auto no-scrollbar scroll-smooth">
+              {CATEGORIES.map(cat => {
+                const isActive = selectedCat === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCat(cat.id)}
+                    className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition-all ${
+                      isActive 
+                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/30 scale-105' 
+                        : 'bg-stone-800 text-stone-300 hover:bg-stone-700'
+                    }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label[lang]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </header>
+
+          {/* MAIN MENU ITEM LIST */}
+          <main className="flex-1 px-4 py-4 space-y-3">
+            
+            {/* Banner/Notice */}
+            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-[10px] uppercase font-extrabold tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
+                  {lang === 'am' ? 'እንኳን ደህና መጡ' : 'Welcome'}
+                </span>
+                <p className="text-xs font-medium mt-1">
+                  {lang === 'am' 
+                    ? 'ትዕዛዝዎን በቀጥታ ከስልክዎ ይምረጡና ይላኩ!' 
+                    : 'Select your favorite order & send directly to our waiter!'}
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowQRModal(true)}
+                className="bg-stone-900/40 hover:bg-stone-900/60 text-amber-100 text-xs px-2.5 py-1.5 rounded-lg flex items-center space-x-1 border border-white/20"
+              >
+                <span>📷</span>
+                <span className="text-[11px] font-bold">{lang === 'am' ? 'QR ኮድ' : 'QR Code'}</span>
+              </button>
+            </div>
+
+            {/* Category Title Header */}
+            <div className="flex items-center justify-between pt-1">
+              <h2 className="text-sm font-bold text-stone-700 uppercase tracking-wider">
+                {CATEGORIES.find(c => c.id === selectedCat)?.label[lang]} ({filteredItems.length})
+              </h2>
+              {searchQuery && (
+                <span className="text-xs text-brand-600 font-medium">
+                  {lang === 'am' ? 'የፍለጋ ውጤት' : 'Search results'}
+                </span>
+              )}
+            </div>
+
+            {/* Items Grid/List */}
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-2xl border border-stone-200 p-6">
+                <div className="text-4xl mb-2">🔍</div>
+                <h3 className="font-bold text-stone-700">
+                  {lang === 'am' ? 'ምንም አይነት ነገር አልተገኘም' : 'No items found'}
+                </h3>
+                <p className="text-xs text-stone-500 mt-1">
+                  {lang === 'am' ? 'እባክዎ ሌላ ቃል ፈልገው ይሞክሩ' : 'Try searching for something else'}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredItems.map(item => {
+                  const inCart = cart[item.id];
+                  const qty = inCart ? inCart.qty : 0;
+                  
+                  return (
+                    <div 
+                      key={item.id}
+                      onClick={() => openNoteModal(item)}
+                      className="bg-white rounded-2xl p-3.5 shadow-sm border border-stone-200/80 hover:border-brand-500/40 transition flex items-start justify-between relative cursor-pointer group active:bg-stone-50"
+                    >
+                      {/* Left Item Details */}
+                      <div className="flex-1 pr-3">
+                        <div className="flex items-center space-x-1.5 flex-wrap">
+                          <h3 className="font-bold text-stone-900 text-sm group-hover:text-brand-600 transition">
+                            {item.name[lang]}
+                          </h3>
+                          {item.tags.map((tag, idx) => (
+                            <span key={idx} className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <p className="text-xs text-stone-500 mt-1 leading-relaxed line-clamp-2">
+                          {item.desc[lang]}
+                        </p>
+
+                        <div className="mt-2.5 flex items-center space-x-3">
+                          <span className="font-black text-stone-900 text-sm">
+                            {item.price} <span className="text-xs font-semibold text-brand-600">{lang === 'am' ? 'ብር' : 'ETB'}</span>
+                          </span>
+
+                          {/* Show Note Indicator if custom note exists */}
+                          {inCart?.note && (
+                            <span className="text-[10px] bg-stone-100 text-stone-600 italic px-2 py-0.5 rounded border border-stone-200 truncate max-w-[140px]">
+                              📝 "{inCart.note}"
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right Stepper / Add Button */}
+                      <div className="flex flex-col items-end justify-between space-y-2" onClick={e => e.stopPropagation()}>
+                        {qty === 0 ? (
+                          <button
+                            onClick={(e) => addToCart(item, e)}
+                            className="bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm flex items-center space-x-1 transition"
+                          >
+                            <span>+</span>
+                            <span>{lang === 'am' ? 'ጨምር' : 'Add'}</span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center bg-stone-100 border border-brand-500/30 rounded-xl p-1 shadow-inner">
+                            <button
+                              onClick={(e) => removeFromCart(item.id, e)}
+                              className="w-7 h-7 bg-white text-stone-800 font-bold rounded-lg shadow-sm flex items-center justify-center hover:bg-stone-200 active:scale-90 text-sm"
+                            >
+                              -
+                            </button>
+                            <span className="w-7 text-center font-bold text-sm text-stone-900">
+                              {qty}
+                            </span>
+                            <button
+                              onClick={(e) => addToCart(item, e)}
+                              className="w-7 h-7 bg-brand-500 text-white font-bold rounded-lg shadow-sm flex items-center justify-center hover:bg-brand-600 active:scale-90 text-sm"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
+                        
+                        <button
+                          onClick={() => openNoteModal(item)}
+                          className="text-[10px] text-stone-400 hover:text-brand-600 underline font-medium"
+                        >
+                          {lang === 'am' ? 'ማስታወሻ' : 'Custom Note'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </main>
+
+          {/* STICKY BOTTOM FLOATING CART BAR */}
+          {cartCount > 0 && !isCartOpen && !confirmedOrder && (
+            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md p-3 z-40 bg-gradient-to-t from-stone-900/80 to-transparent">
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="w-full bg-brand-500 hover:bg-brand-600 text-white p-3.5 rounded-2xl shadow-xl flex items-center justify-between animate-bounce-short transition active:scale-[0.99]"
+              >
+                <div className="flex items-center space-x-2.5">
+                  <div className="bg-white/20 text-white font-extrabold text-xs px-2.5 py-1 rounded-lg">
+                    {cartCount}
+                  </div>
+                  <div className="text-left">
+                    <div className="text-xs text-white/80 uppercase tracking-wider font-semibold">
+                      {lang === 'am' ? 'ትዕዛዝዎን ይመልከቱ' : 'View Order'}
+                    </div>
+                    <div className="text-sm font-bold">
+                      {lang === 'am' ? 'ጠረጴዛ' : 'Table'} #{tableNum}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <span className="text-base font-extrabold">
+                    {cartTotal} <span className="text-xs font-medium">{lang === 'am' ? 'ብር' : 'ETB'}</span>
+                  </span>
+                  <span className="text-lg">➔</span>
+                </div>
+              </button>
+            </div>
+          )}
+
+          {/* SLIDE-UP CART DRAWER MODAL */}
+          {isCartOpen && (
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
+              <div 
+                className="bg-white w-full max-w-md rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
+                onClick={e => e.stopPropagation()}
+              >
+                {/* Cart Header */}
+                <div className="p-4 bg-brand-900 text-white flex items-center justify-between border-b border-stone-800">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xl">🛒</span>
+                    <div>
+                      <h3 className="font-bold text-base">{lang === 'am' ? 'የእርስዎ ትዕዛዝ' : 'Your Order'}</h3>
+                      <p className="text-xs text-amber-300">
+                        {lang === 'am' ? `ጠረጴዛ ቁጥር #${tableNum}` : `Table #${tableNum}`}
+                      </p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => setIsCartOpen(false)}
+                    className="w-8 h-8 rounded-full bg-stone-800 text-stone-300 flex items-center justify-center text-sm font-bold hover:bg-stone-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Cart Itemized List */}
+                <div className="p-4 flex-1 overflow-y-auto space-y-3">
+                  {Object.values(cart).length === 0 ? (
+                    <div className="text-center py-8 text-stone-500 text-sm">
+                      {lang === 'am' ? 'ካርትዎ ባዶ ነው' : 'Your cart is empty'}
+                    </div>
+                  ) : (
+                    Object.values(cart).map(({ item, qty, note }) => (
+                      <div key={item.id} className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between">
+                        <div className="flex-1 pr-2">
+                          <h4 className="font-bold text-stone-900 text-sm">{item.name[lang]}</h4>
+                          <p className="text-xs text-brand-600 font-semibold mt-0.5">
+                            {item.price} x {qty} = {item.price * qty} ETB
+                          </p>
+                          {note && (
+                            <p className="text-[11px] text-stone-500 italic mt-1 bg-white p-1 rounded border">
+                              📝 {note}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Stepper */}
+                        <div className="flex items-center space-x-1.5 bg-white border rounded-lg p-1">
+                          <button
+                            onClick={() => removeFromCart(item.id)}
+                            className="w-6 h-6 bg-stone-200 text-stone-800 font-bold rounded flex items-center justify-center text-xs"
+                          >
+                            -
+                          </button>
+                          <span className="w-6 text-center font-bold text-xs">{qty}</span>
+                          <button
+                            onClick={() => addToCart(item)}
+                            className="w-6 h-6 bg-brand-500 text-white font-bold rounded flex items-center justify-center text-xs"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
+                  {/* Table Selection inside cart */}
+                  <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
+                    <span className="text-xs font-bold text-amber-900">
+                      {lang === 'am' ? 'የሚቀመጡበት ጠረጴዛ ይምረጡ:' : 'Confirm Table Number:'}
+                    </span>
+                    <select
+                      value={tableNum}
+                      onChange={(e) => setTableNum(e.target.value)}
+                      className="bg-white border border-amber-300 font-bold text-stone-900 rounded-lg px-3 py-1 text-xs focus:outline-none"
+                    >
+                      {[...Array(20)].map((_, i) => (
+                        <option key={i+1} value={i+1}>Table #{i+1}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Footer Subtotal & Action */}
+                <div className="p-4 bg-stone-100 border-t border-stone-200 space-y-3">
+                  <div className="flex justify-between items-center text-sm font-bold text-stone-900">
+                    <span>{lang === 'am' ? 'ጠቅላላ ክፍያ (Subtotal):' : 'Subtotal:'}</span>
+                    <span className="text-lg text-brand-600 font-black">{cartTotal} ETB</span>
+                  </div>
+
+                  <button
+                    onClick={handlePlaceOrder}
+                    disabled={cartCount === 0}
+                    className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center space-x-2 text-sm transition"
+                  >
+                    <span>✅</span>
+                    <span>{lang === 'am' ? 'አሁን እዘዝ (Confirm Order)' : 'Confirm & Send Order'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* CUSTOM ITEM NOTE MODAL */}
+          {selectedItemForNote && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+              <div className="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+                <div className="flex justify-between items-center border-b pb-2">
+                  <h3 className="font-bold text-stone-900 text-sm">
+                    {selectedItemForNote.name[lang]}
+                  </h3>
+                  <button 
+                    onClick={() => setSelectedItemForNote(null)}
+                    className="text-stone-400 font-bold hover:text-stone-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <p className="text-xs text-stone-500">
+                  {selectedItemForNote.desc[lang]}
+                </p>
+
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">
+                    {lang === 'am' ? 'ልዩ ትዕዛዝ / ማስታወሻ (ምሳሌ፡ ያለ ስኳር፣ በደንብ ይጠበስ)' : 'Special Instructions (e.g. No sugar, extra crispy)'}
+                  </label>
+                  <textarea
+                    rows="3"
+                    value={tempNote}
+                    onChange={(e) => setTempNote(e.target.value)}
+                    placeholder={lang === 'am' ? 'ማስታወሻዎን እዚህ ይጻፉ...' : 'Type note for kitchen/bar...'}
+                    className="w-full border border-stone-300 rounded-xl p-2.5 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  ></textarea>
+                </div>
+
+                <div className="flex space-x-2 pt-2">
+                  <button
+                    onClick={() => setSelectedItemForNote(null)}
+                    className="flex-1 py-2 text-xs font-bold text-stone-600 bg-stone-100 rounded-xl hover:bg-stone-200"
+                  >
+                    {lang === 'am' ? 'ተመለስ' : 'Cancel'}
+                  </button>
+                  <button
+                    onClick={saveNote}
+                    className="flex-1 py-2 text-xs font-bold text-white bg-brand-500 rounded-xl hover:bg-brand-600"
+                  >
+                    {lang === 'am' ? 'አስቀምጥ' : 'Save Note'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* CONFIRMED ORDER RECEIPT SCREEN / MODAL */}
+          {confirmedOrder && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 overflow-y-auto">
+              <div className="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl space-y-4 my-auto relative">
+                
+                {/* Success Badge */}
+                <div className="text-center">
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-2 animate-bounce">
+                    ✓
+                  </div>
+                  <h3 className="font-extrabold text-lg text-stone-900">
+                    {lang === 'am' ? 'ትዕዛዝዎ በተሳካ ሁኔታ ተልኳል!' : 'Order Placed Successfully!'}
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    {lang === 'am' ? 'እባክዎ ለአስተናጋጁ ያሳዩ ወይም በስልክ ይላኩ' : 'Please show this screen or send to waiter'}
+                  </p>
+                </div>
+
+                {/* Printable Digital Receipt Card */}
+                <div className="bg-stone-50 p-4 rounded-2xl border border-dashed border-stone-300 font-mono text-xs text-stone-800 space-y-2">
+                  <div className="text-center border-b pb-2">
+                    <p className="font-bold text-stone-900 text-sm">A.M COFFEE & JUICE</p>
+                    <p className="text-[10px] text-stone-500">Order #{confirmedOrder.orderId} • Table #{confirmedOrder.tableNum}</p>
+                    <p className="text-[10px] text-stone-400">{confirmedOrder.date} - {confirmedOrder.timestamp}</p>
+                  </div>
+
+                  <div className="space-y-1 py-1">
+                    {confirmedOrder.items.map(({ item, qty, note }, idx) => (
+                      <div key={idx} className="flex justify-between items-start">
+                        <div>
+                          <span>{qty}x {item.name[lang]}</span>
+                          {note && <p className="text-[9px] text-stone-500 italic">└ Note: {note}</p>}
+                        </div>
+                        <span className="font-bold">{item.price * qty} ETB</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="border-t pt-2 flex justify-between font-bold text-sm text-stone-900">
+                    <span>TOTAL:</span>
+                    <span className="text-brand-600">{confirmedOrder.total} ETB</span>
+                  </div>
+                </div>
+
+                {/* Dispatch Options */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => {
+                      const text = `*A.M Coffee & Juice Order*\n*Order ID:* ${confirmedOrder.orderId}\n*Table:* #${confirmedOrder.tableNum}\n\n` + 
+                        confirmedOrder.items.map(i => `• ${i.qty}x ${i.item.name.en}${i.note ? ` (${i.note})` : ''}`).join('\n') +
+                        `\n\n*Total:* ${confirmedOrder.total} ETB`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2"
+                  >
+                    <span>💬</span>
+                    <span>{lang === 'am' ? 'በ WhatsApp ለአስተናጋጅ ላክ' : 'Send via WhatsApp to Waiter'}</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const text = `A.M Coffee Order #${confirmedOrder.orderId} (Table ${confirmedOrder.tableNum}): ` +
+                        confirmedOrder.items.map(i => `${i.qty}x ${i.item.name.en}`).join(', ') +
+                        ` | Total: ${confirmedOrder.total} ETB`;
+                      navigator.clipboard.writeText(text);
+                      alert(lang === 'am' ? 'ትዕዛዙ ተገልብጧል!' : 'Order details copied to clipboard!');
+                    }}
+                    className="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2"
+                  >
+                    <span>📋</span>
+                    <span>{lang === 'am' ? 'ትዕዛዙን ኮፒ አድርግ (Copy Summary)' : 'Copy Order Text'}</span>
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setConfirmedOrder(null)}
+                  className="w-full border border-stone-300 text-stone-600 font-bold py-2 rounded-xl text-xs hover:bg-stone-100"
+                >
+                  {lang === 'am' ? 'ወደ ዋናው ገጽ ተመለስ' : 'Close & Back to Menu'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* QR CODE GENERATOR MODAL FOR CAFE MANAGERS */}
+          {showQRModal && (
+            <QRCodeModal 
+              lang={lang} 
+              tableNum={tableNum} 
+              onClose={() => setShowQRModal(false)} 
+            />
+          )}
+
+        </div>
+      );
+    }
+
+    // --- QR CODE GENERATOR COMPONENT ---
+    function QRCodeModal({ lang, tableNum, onClose }) {
+      const qrRef = useRef(null);
+      const [qrTable, setQrTable] = useState(tableNum || '1');
+
+      useEffect(() => {
+        if (qrRef.current) {
+          qrRef.current.innerHTML = '';
+          const targetUrl = `${window.location.origin}${window.location.pathname}?table=${qrTable}`;
+          new QRCode(qrRef.current, {
+            text: targetUrl,
+            width: 160,
+            height: 160,
+            colorDark: '#2c1a14',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        }
+      }, [qrTable]);
+
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="bg-white w-full max-w-xs rounded-3xl p-5 shadow-2xl text-center space-y-4">
+            
+            <div className="flex justify-between items-center border-b pb-2">
+              <h3 className="font-bold text-stone-900 text-sm">
+                {lang === 'am' ? 'የጠረጴዛ QR ኮድ ማመንጫ' : 'Table QR Code Generator'}
+              </h3>
+              <button onClick={onClose} className="text-stone-400 font-bold hover:text-stone-600">✕</button>
+            </div>
+
+            <div className="flex items-center justify-center space-x-2">
+              <span className="text-xs font-bold text-stone-600">
+                {lang === 'am' ? 'ጠረጴዛ ቁጥር:' : 'Select Table:'}
+              </span>
+              <select 
+                value={qrTable}
+                onChange={(e) => setQrTable(e.target.value)}
+                className="bg-amber-100 border border-amber-300 font-bold text-stone-900 rounded-lg px-2 py-1 text-xs focus:outline-none"
+              >
+                {[...Array(20)].map((_, i) => (
+                  <option key={i+1} value={i+1}>Table #{i+1}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* QR Card Preview */}
+            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 flex flex-col items-center justify-center shadow-inner">
+              <div className="font-extrabold text-stone-900 text-sm mb-1">A.M COFFEE & JUICE</div>
+              <div ref={qrRef} className="p-2 bg-white rounded-xl shadow-md my-2"></div>
+              <div className="text-xs font-black text-brand-600 uppercase tracking-widest mt-1">
+                SCAN TO ORDER • TABLE #{qrTable}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-stone-500">
+              {lang === 'am' 
+                ? 'ይህንን QR ኮድ አትመው በጠረጴዛው ላይ በመልጠፍ ደንበኞች በስልካቸው እንዲያዙ ማድረግ ይችላሉ።' 
+                : 'Print and place this QR code on Table #' + qrTable + ' for instant scanning & ordering.'}
+            </p>
+
+            <button
+              onClick={() => window.print()}
+              className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 rounded-xl text-xs shadow"
+            >
+              🖨️ {lang === 'am' ? 'QR ኮዱን አትም (Print)' : 'Print QR Code'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Render React App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
