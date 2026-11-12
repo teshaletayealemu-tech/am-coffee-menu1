@@ -1,851 +1,898 @@
 <!DOCTYPE html>
-<html lang="am" class="h-full bg-stone-100">
+<html lang="am">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>A.M Coffee & Juice - Digital Menu</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#fffbeb',
-              100: '#fef3c7',
-              200: '#fde68a',
-              500: '#f97316', // Vibrant Orange
-              600: '#ea580c',
-              800: '#4a2e2b', // Espresso Brown
-              900: '#2c1a14', // Dark Roast
-            }
-          },
-          fontFamily: {
-            sans: ['Inter', 'Noto Sans Ethiopic', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
-
-  <!-- Google Fonts for Ethiopic (Amharic) and Modern English -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Ethiopic:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- QRCode.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <!-- React & ReactDOM & Babel -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <style>
-    /* Custom Scrollbar & Utility styling */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    @keyframes pulse-subtle {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    .animate-bounce-short {
-      animation: pulse-subtle 0.3s ease-in-out;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>A.M Coffee & Juice — Digital Menu & Ordering</title>
+<style>
+  :root {
+    --primary: #143D32;
+    --gold: #C89B54;
+    --gold-light: #F7EAD3;
+    --accent: #D97724;
+    --bg: #F6F4EF;
+    --card: #FFFFFF;
+    --text: #18221F;
+    --muted: #65726E;
+    --border: #E2DED5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 110px;
+    line-height: 1.4;
+  }
+  .hero {
+    position: relative;
+    background: linear-gradient(145deg, #0D2B23 0%, #164438 60%, #1F5B4B 100%);
+    color: #fff;
+    padding: 18px 16px 24px;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 28px;
+    box-shadow: 0 12px 28px rgba(13, 43, 35, 0.25);
+  }
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(200,155,84,0.35);
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--gold-light);
+  }
+  .dot-live {
+    width: 7px; height: 7px; border-radius: 50%; background: #34D399;
+    box-shadow: 0 0 8px #34D399;
+  }
+  .controls { display: flex; gap: 6px; align-items: center; }
+  select, .lang-btn, .pay-top-btn {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .pay-top-btn {
+    background: rgba(200, 155, 84, 0.24);
+    border-color: var(--gold);
+    color: #FDE68A;
+  }
+  select option { color: #000; background: #fff; }
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .brand-logo-svg {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    background: #F4EFE6;
+    border: 2px solid var(--gold);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.28);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-title { font-size: 1.45rem; font-weight: 900; color: #fff; }
+  .hero-sub { font-size: 0.82rem; color: #D4E2DD; margin-top: 2px; }
+  .search-wrap { position: relative; }
+  .search-wrap input {
+    width: 100%;
+    padding: 12px 16px 12px 40px;
+    border-radius: 14px;
+    border: none;
+    font-size: 0.94rem;
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.14);
+    outline: none;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    opacity: 0.55;
+  }
+  .quick-filters {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px 4px;
+    max-width: 720px;
+    margin: 0 auto;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .quick-filters::-webkit-scrollbar { display: none; }
+  .qf-btn {
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .qf-btn.active {
+    background: var(--gold-light);
+    border-color: var(--gold);
+    color: #784F12;
+  }
+  .categories {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 16px;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    scrollbar-width: none;
+  }
+  .categories::-webkit-scrollbar { display: none; }
+  .cat-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 15px;
+    border-radius: 22px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .cat-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  .menu-container { padding: 4px 16px 24px; max-width: 720px; margin: 0 auto; }
+  .item-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 14px rgba(20, 34, 31, 0.04);
+  }
+  .item-thumb {
+    width: 82px;
+    height: 82px;
+    border-radius: 14px;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    text-align: center;
+  }
+  .thumb-emoji { font-size: 2.1rem; line-height: 1.1; }
+  .thumb-label { font-size: 0.56rem; letter-spacing: 0.5px; margin-top: 4px; opacity: 0.92; text-transform: uppercase; }
+  .tag-badge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    background: rgba(0, 0, 0, 0.58);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 6px;
+  }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-weight: 800; font-size: 0.98rem; color: var(--text); margin-bottom: 3px; }
+  .item-desc { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+  .item-bottom { display: flex; justify-content: space-between; align-items: center; }
+  .item-price { font-weight: 900; color: var(--accent); font-size: 0.96rem; }
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .step-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-btn.minus { background: #DCE3E0; color: var(--primary); }
+  .qty { font-weight: 800; min-width: 18px; text-align: center; font-size: 0.9rem; }
+  .cart-bar {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    max-width: 688px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #0D2B23 0%, #1E5647 100%);
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 18px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 28px rgba(13, 43, 35, 0.36);
+    border: 1px solid rgba(200,155,84,0.4);
+    cursor: pointer;
+    z-index: 60;
+  }
+  .cart-bar.visible { display: flex; }
+  .cart-badge {
+    background: var(--gold);
+    color: #14221E;
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-weight: 900;
+    font-size: 0.9rem;
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 22, 18, 0.68);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+    background: var(--card);
+    width: 100%;
+    max-width: 720px;
+    max-height: 92vh;
+    border-radius: 24px 24px 0 0;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .close-btn {
+    background: var(--bg);
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .note-input {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 10px 0;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: var(--bg);
+  }
+  .payment-box {
+    background: #FBF9F5;
+    border: 1px solid #E5D7BD;
+    border-radius: 16px;
+    padding: 12px;
+    margin: 12px 0;
+  }
+  .payment-header {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 8px;
+  }
+  .pay-method-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .pay-card {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  .pay-card.selected {
+    border-color: var(--primary);
+    background: #EEF6F3;
+  }
+  .pay-title {
+    font-size: 0.78rem;
+    font-weight: 900;
+    color: var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pay-acc {
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 4px 0;
+    word-break: break-all;
+  }
+  .copy-tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    background: var(--primary);
+    color: #fff;
+    padding: 2px 7px;
+    border-radius: 6px;
+  }
+  .extras-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    padding: 10px 12px;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .tip-pills { display: flex; gap: 5px; }
+  .tip-btn {
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .tip-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 900;
+    font-size: 1.15rem;
+    margin: 12px 0;
+    color: var(--primary);
+  }
+  .action-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 14px;
+    font-size: 0.98rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-bottom: 9px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-tg { background: #0088CC; }
+  .btn-sms { background: var(--primary); }
+  .btn-copy { background: var(--bg); color: var(--primary); border: 1px solid var(--border); font-size: 0.86rem; }
+  .receipt-box {
+    background: var(--bg);
+    border: 1.5px dashed var(--primary);
+    border-radius: 14px;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 0.84rem;
+    white-space: pre-line;
+  }
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111827;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    z-index: 200;
+    display: none;
+  }
+</style>
 </head>
-<body class="h-full text-stone-800 antialiased font-sans select-none bg-stone-900 flex justify-center">
+<body>
 
-  <div id="root" class="w-full max-w-md bg-stone-50 min-h-screen relative shadow-2xl flex flex-col pb-24 overflow-x-hidden"></div>
+<div class="toast" id="toast">Copied!</div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
+<div class="hero">
+  <div class="top-bar">
+    <span class="status-pill"><span class="dot-live"></span> Open • Fresh Daily</span>
+    <div class="controls">
+      <button class="pay-top-btn" onclick="openPayOnly()">💳 ክፍያ</button>
+      <select id="tableSelect" aria-label="Table Number"></select>
+      <button class="lang-btn" id="langBtn" onclick="toggleLang()">EN</button>
+    </div>
+  </div>
+  <div class="brand-row">
+    <div class="brand-logo-svg">
+      <svg viewBox="0 0 100 100" width="60" height="60">
+        <circle cx="50" cy="50" r="46" fill="#143D32" stroke="#C89B54" stroke-width="3"/>
+        <text x="50" y="48" text-anchor="middle" fill="#F7EAD3" font-size="25" font-weight="900" font-family="Georgia, serif">A.M</text>
+        <line x1="24" y1="56" x2="76" y2="56" stroke="#C89B54" stroke-width="2"/>
+        <text x="50" y="70" text-anchor="middle" fill="#C89B54" font-size="9.5" font-weight="800" letter-spacing="1">COFFEE &amp; JUICE</text>
+      </svg>
+    </div>
+    <div>
+      <div class="hero-title">A.M Coffee & Juice</div>
+      <div class="hero-sub" id="subTitle">ምርጥ ቁርስ፣ ትኩስ ቡና እና ተፈጥሯዊ ጁሶች — ይምረጡና ይዘዙ</div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="ምግብ ወይም መጠጥ ይፈልጉ..." oninput="renderMenu()">
+  </div>
+</div>
 
-    // --- COMPLETE MENU DATA ---
-    const MENU_ITEMS = [
-      // Breakfast / ቁርስ
-      { id: 'b1', cat: 'breakfast', name: { en: 'Normal Fetira', am: 'ኖርማል ፈጢራ' }, price: 200, desc: { en: 'Crispy baked flatbread served with honey', am: 'በማር የሚቀርብ ጥብስ ፈጢራ' }, tags: ['Popular'] },
-      { id: 'b2', cat: 'breakfast', name: { en: 'Special Fetira', am: 'ስፔሻል ፈጢራ' }, price: 300, desc: { en: 'Loaded with Honey, Fresh Avocado & Fried Egg', am: 'በማር፣ አቮካዶ እና እንቁላል የተዘጋጀ' }, tags: ['Chef Special'] },
-      { id: 'b3', cat: 'breakfast', name: { en: 'Ful', am: 'ፉል' }, price: 300, desc: { en: 'Slow-cooked fava beans with olive oil, tomatoes, onions & green pepper', am: 'በዘይት፣ ቲማቲም፣ ቃሪያና ሽንኩርት የተሰራ' }, tags: ['Traditional'] },
-      { id: 'b4', cat: 'breakfast', name: { en: 'Special Ful', am: 'ስፔሻል ፉል' }, price: 450, desc: { en: 'Rich fava beans topped with Fresh Yoghurt & Boiled/Fried Egg', am: 'በእርጎ እና እንቁላል ያሸበረቀ ፉል' }, tags: ['Popular'] },
-      { id: 'b5', cat: 'breakfast', name: { en: 'Normal Chechebsa', am: 'ኖርማል ጨጨብሳ' }, price: 300, desc: { en: 'Torn flatbread fried in spiced butter (Kibe) or oil with berbere', am: 'በኮረሪማና በቅቤ የተጠበሰ ጨጨብሳ' }, tags: ['Traditional'] },
-      { id: 'b6', cat: 'breakfast', name: { en: 'Special Chechebsa', am: 'ስፔሻል ጨጨብሳ' }, price: 450, desc: { en: 'Chechebsa topped with pure Honey & Fried Egg', am: 'በማር እና እንቁላል የታጀበ ስፔሻል ጨጨብሳ' }, tags: ['Best Seller'] },
-      { id: 'b7', cat: 'breakfast', name: { en: 'Enkulal Firfir', am: 'እንቁላል ፍርፍር' }, price: 350, desc: { en: 'Scrambled eggs cooked with onions, tomatoes & jalapeno peppers', am: 'በሽንኩርት፣ ቲማቲምና ቃሪያ የተሰራ እንቁላል' }, tags: ['Quick Choice'] },
-      { id: 'b8', cat: 'breakfast', name: { en: 'Egg Sandwich', am: 'የእንቁላል ሳንድዊች' }, price: 350, desc: { en: 'Fresh sandwich bread filled with seasoned scrambled eggs', am: 'በእንቁላል የተሞላ ጣፋጭ ሳንድዊች' }, tags: [] },
-      { id: 'b9', cat: 'breakfast', name: { en: 'Tuna Sandwich', am: 'የቱና ሳንድዊች' }, price: 450, desc: { en: 'Premium tuna salad filling with fresh veggies and mayonnaise', am: 'በቱና እና በፈስካ አትክልት የተዘጋጀ' }, tags: [] },
-      { id: 'b10', cat: 'breakfast', name: { en: 'Omelet', am: 'ኦምሌት' }, price: 550, desc: { en: 'Fluffy double egg omelet served with Avocado slices & French Chips', am: 'ከአቮካዶ እና ፍሬንች ቺፕስ ጋር የሚቀርብ' }, tags: ['Filling'] },
+<div class="quick-filters">
+  <button class="qf-btn active" id="qfAll" onclick="setTagFilter('all')">ሁሉም (All)</button>
+  <button class="qf-btn" id="qfFasting" onclick="setTagFilter('Fasting')">🌿 የጾም (Fasting)</button>
+  <button class="qf-btn" id="qfPopular" onclick="setTagFilter('Popular')">⭐ ተወዳጅ (Popular)</button>
+  <button class="qf-btn" id="qfSpecial" onclick="setTagFilter('Special')">👑 ስፔሻል (Special)</button>
+</div>
 
-      // Lunch & Dinner / ምሳ እና እራት
-      { id: 'l1', cat: 'lunch', name: { en: 'Vegetable Wrap', am: 'የአትክልት ራፕ' }, price: 350, desc: { en: 'Tortilla wrapped with sautéed seasonal veggies & avocado', am: 'በተለያዩ አትክልቶችና አቮካዶ የተጠቀለለ' }, tags: ['Fasting / Vegan'] },
-      { id: 'l2', cat: 'lunch', name: { en: 'Tuna with Egg Wrap', am: 'ቱና ከእንቁላል ራፕ' }, price: 500, desc: { en: 'Tuna flakes, boiled egg, lettuce and house sauce wrapped tight', am: 'ቱና፣ እንቁላል እና ሰላጣ የተጠቀለለ' }, tags: ['High Protein'] },
-      { id: 'l3', cat: 'lunch', name: { en: 'Chicken Wrap', am: 'የዶሮ ራፕ' }, price: 600, desc: { en: 'Grilled spiced chicken strips with crunchy veggies & sauce', am: 'በቅመም የተጠበሰ የዶሮ ስጋ ከላጣ ጋር' }, tags: ['Chef Special'] },
+<div class="categories" id="categoryTabs"></div>
+<div class="menu-container" id="menuContainer"></div>
 
-      // Snack / መክሰስ
-      { id: 's1', cat: 'snack', name: { en: 'French Fries', am: 'ፍሬንች ፍራይስ (ቺፕስ)' }, price: 280, desc: { en: 'Golden crisp potato chips with ketchup & mayo dipping sauce', am: 'በጠበሰ ድንች የተዘጋጀ ቺፕስ' }, tags: ['Classic'] },
-      { id: 's2', cat: 'snack', name: { en: 'Spring Roll', am: 'ስፕሪንግ ሮል' }, price: 300, desc: { en: 'Crispy fried veggie filled spring rolls', am: 'በአትክልት የተሞላ ጥብስ ስፕሪንግ ሮል' }, tags: ['Crunchy'] },
-      { id: 's3', cat: 'snack', name: { en: 'French Fries with Cheese', am: 'ቺፕስ በቺዝ' }, price: 350, desc: { en: 'Crispy French fries smothered in melted mozzarella/cheddar cheese', am: 'በቀለጠ ቺዝ ያሸበረቀ ቺፕስ' }, tags: ['Cheesy'] },
-      { id: 's4', cat: 'snack', name: { en: 'Sanbusa Ye Mesir (6 pcs)', am: 'የምስር ሳምቡሳ (6 ፍሬ)' }, price: 350, desc: { en: '6 pieces of crispy pastries filled with spiced lentils & green pepper', am: '6 ፍሬ በምስርና ቅመም የተሞላ ሳምቡሳ' }, tags: ['Fasting / Vegan'] },
-      { id: 's5', cat: 'snack', name: { en: 'Sanbusa Ye Sega (6 pcs)', am: 'የስጋ ሳምቡሳ (6 ፍሬ)' }, price: 500, desc: { en: '6 pieces of golden pastry filled with seasoned minced beef', am: '6 ፍሬ በስጋ የተሞላ ጥብስ ሳምቡሳ' }, tags: ['Favorite'] },
+<div class="cart-bar" id="cartBar" onclick="openCart()">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="cart-badge" id="cartCount">0</span>
+    <span id="viewOrderText" style="font-weight:800;">ትዕዛዝ እና ክፍያ</span>
+  </div>
+  <span id="cartTotal" style="font-weight:900;font-size:1.05rem;">0 ETB</span>
+</div>
 
-      // Hot Drink / ትኩስ መጠጦች
-      { id: 'h1', cat: 'hot', name: { en: 'Tea', am: 'ሻይ' }, price: 50, desc: { en: 'Freshly brewed black tea infused with spices', am: 'በቅመም የፈላ ትኩስ ሻይ' }, tags: [] },
-      { id: 'h2', cat: 'hot', name: { en: 'Ginger Tea', am: 'የዝንጅብል ሻይ' }, price: 70, desc: { en: 'Warming black tea brewed with fresh spicy ginger root', am: 'በዝንጅብል የፈላ ህይወት ሰጪ ሻይ' }, tags: ['Health Boost'] },
-      { id: 'h3', cat: 'hot', name: { en: 'Black Tea', am: 'ጥቁር ሻይ' }, price: 80, desc: { en: 'Strong aromatic pure black tea', am: 'ጠንካራ ጥቁር ሻይ' }, tags: [] },
-      { id: 'h4', cat: 'hot', name: { en: 'Espresso', am: 'ኤስፕሬሶ' }, price: 80, desc: { en: 'Single shot of rich Ethiopian Arabica coffee', am: 'የኢትዮጵያ ንጹህ ኤስፕሬሶ ቡና' }, tags: ['Bold'] },
-      { id: 'h5', cat: 'hot', name: { en: 'Sprice (Coffee & Tea)', am: 'ስፕሪስ (ቡና እና ሻይ)' }, price: 80, desc: { en: 'Unique Ethiopian blend of tea layered with fresh coffee shot', am: 'የሻይ እና ቡና ቅልቅል ስፕሪስ' }, tags: ['Local Classic'] },
-      { id: 'h6', cat: 'hot', name: { en: 'Double Espresso', am: 'ደብል ኤስፕሬሶ' }, price: 120, desc: { en: 'Double shot of concentrated espresso coffee', am: 'ድርብ ኤስፕሬሶ ቡና' }, tags: ['Strong'] },
-      { id: 'h7', cat: 'hot', name: { en: 'Macchiato', am: 'ማኪያቶ' }, price: 100, desc: { en: 'Espresso stained with a dash of warm steamed milk foam', am: 'በወተት አረፋ የተሰራ ጣፋጭ ማኪያቶ' }, tags: ['Popular'] },
-      { id: 'h8', cat: 'hot', name: { en: 'Latte', am: 'ላቴ' }, price: 150, desc: { en: 'Smooth espresso with plenty of creamy steamed milk', am: 'በለሰለሰ ወተት የተዘጋጀ ላቴ' }, tags: [] },
-      { id: 'h9', cat: 'hot', name: { en: 'Special Tea', am: 'ስፔሻል ሻይ' }, price: 200, desc: { en: 'Spiced aromatic tea with cloves, cinnamon, lemon & honey', am: 'በቅርንፉድ፣ ቀረፋና ማር የተሰራ ልዩ ሻይ' }, tags: ['Special'] },
-      { id: 'h10', cat: 'hot', name: { en: 'Fasting Macchiato', am: 'የጾም ማኪያቶ' }, price: 200, desc: { en: 'Macchiato made with non-dairy plant milk foam', am: 'በጾም ወተት የተሰራ ማኪያቶ' }, tags: ['Fasting / Vegan'] },
-      { id: 'h11', cat: 'hot', name: { en: 'Peanut Tea', am: 'የለውዝ ሻይ' }, price: 200, desc: { en: 'Creamy spiced tea mixed with pure roasted peanut paste', am: 'በለውዝ ክሬም የተሰራ ልዩ ትኩስ መጠጥ' }, tags: ['Nutty & Rich'] },
-      { id: 'h12', cat: 'hot', name: { en: 'Hot Chocolate', am: 'ሆት ቾኮሌት' }, price: 220, desc: { en: 'Rich cocoa steamed with hot milk and touch of vanilla', am: 'በወተት የተጠበሰ ጣፋጭ ቾኮሌት' }, tags: ['Sweet'] },
-
-      // Juice / ጁስ
-      { id: 'j1', cat: 'juice', name: { en: 'Avocado Juice', am: 'የአቮካዶ ጁስ' }, price: 200, desc: { en: 'Creamy fresh avocado blend topped with a splash of lime/Vimto', am: 'ወፍራም ና ትኩስ የአቮካዶ ጁስ' }, tags: ['Best Seller'] },
-      { id: 'j2', cat: 'juice', name: { en: 'Mango Juice', am: 'የማንጎ ጁስ' }, price: 200, desc: { en: 'Sweet ripe tropical mango juice', am: 'ጣፋጭ የተፈጥሮ የማንጎ ጁስ' }, tags: ['Sweet'] },
-      { id: 'j3', cat: 'juice', name: { en: 'Papaya Juice', am: 'የፓፓያ ጁስ' }, price: 180, desc: { en: 'Fresh sun-ripened papaya puree', am: 'ትኩስ የፓፓያ ጁስ' }, tags: ['Refreshing'] },
-      { id: 'j4', cat: 'juice', name: { en: 'Watermelon Juice', am: 'የሀብሀብ ጁስ' }, price: 180, desc: { en: 'Hydrating pure pressed watermelon juice', am: 'ቀዝቃዛ እና አሪፍ የሀብሀብ ጁስ' }, tags: ['Hydrating'] },
-      { id: 'j5', cat: 'juice', name: { en: 'Strawberry Juice', am: 'የእንጆሪ ጁስ' }, price: 220, desc: { en: 'Fresh mountain strawberries blended with ice', am: 'ከትኩስ እንጆሪ የተቀመመ' }, tags: ['Seasonal'] },
-      { id: 'j6', cat: 'juice', name: { en: 'Mixed Special Juice (Sprice)', am: 'ስፕሪስ ልዩ ጁስ' }, price: 250, desc: { en: 'Layered fresh fruit cocktail: Avocado, Mango, Papaya & Vimto drizzle', am: 'የአቮካዶ፣ ማንጎ እና ፓፓያ ድንቅ ቅልቅል' }, tags: ['Signature'] },
-
-      // Detox Juice / ዲቶክስ ጁስ
-      { id: 'd1', cat: 'detox', name: { en: 'Green Detox', am: 'ግሪን ዲቶክስ' }, price: 250, desc: { en: 'Fresh Spinach, Green Apple, Ginger & Fresh Lemon', am: 'ከስፒናች፣ አረንጓዴ ፖም፣ ዝንጅብልና ሎሚ የተሰራ' }, tags: ['Healthy'] },
-      { id: 'd2', cat: 'detox', name: { en: 'Beetroot & Carrot Boost', am: 'ቀይ ስር እና ካሮት ዲቶክስ' }, price: 230, desc: { en: 'Fresh Beetroot, Sweet Carrot, Orange & Ginger blend', am: 'ከቀይ ስር፣ ካሮት እና ብርቱካን የተዘጋጀ' }, tags: ['Vitamins'] },
-      { id: 'd3', cat: 'detox', name: { en: 'Ginger Lemon Immunity Shot', am: 'ዝንጅብል እና ሎሚ Shot' }, price: 150, desc: { en: 'Concentrated ginger, lemon & honey immune boosting shot', am: 'የዝንጅብል፣ ሎሚ እና ማር ሃይለኛ ቅልቅል' }, tags: ['Immunity'] },
-
-      // Soft Drink / ለስላሳ መጠጦች
-      { id: 'sd1', cat: 'soft', name: { en: 'Bottled Water', am: 'የታሸገ ውሃ' }, price: 40, desc: { en: 'Pure natural mineral spring water (500ml)', am: 'ንጹህ የታሸገ ተፈጥሮአዊ ውሃ (500ml)' }, tags: [] },
-      { id: 'sd2', cat: 'soft', name: { en: 'Soft Drinks (Coke / Sprite / Fanta)', am: 'ለስላሳ መጠጦች (ኮካ / ስፕራይት / ፋንታ)' }, price: 70, desc: { en: 'Chilled carbonated soft drinks of your choice', am: 'ቀዝቃዛ ኮካ ኮላ፣ ስፕራይት ወይም ፋንታ' }, tags: [] },
-      { id: 'sd3', cat: 'soft', name: { en: 'Sparkling Water (Ambo Water)', am: 'አምቦ ውሃ' }, price: 70, desc: { en: 'Chilled natural sparkling mineral water', am: 'ቀዝቃዛ አምቦ ውሃ' }, tags: [] },
-    ];
-
-    const CATEGORIES = [
-      { id: 'all', label: { en: 'All Items', am: 'ሁሉም' }, icon: '🍽️' },
-      { id: 'breakfast', label: { en: 'Breakfast', am: 'ቁርስ' }, icon: '🍳' },
-      { id: 'lunch', label: { en: 'Lunch & Dinner', am: 'ምሳ እና እራት' }, icon: '🌯' },
-      { id: 'snack', label: { en: 'Snacks', am: 'መክሰስ' }, icon: '🍟' },
-      { id: 'hot', label: { en: 'Hot Drinks', am: 'ትኩስ መጠጦች' }, icon: '☕' },
-      { id: 'juice', label: { en: 'Fresh Juices', am: 'ጁስ' }, icon: '🍹' },
-      { id: 'detox', label: { en: 'Detox Juices', am: 'ዲቶክስ ጁስ' }, icon: '🌿' },
-      { id: 'soft', label: { en: 'Soft Drinks', am: 'ለስላሳ መጠጦች' }, icon: '🥤' },
-    ];
-
-    // --- MAIN APP COMPONENT ---
-    function App() {
-      const [lang, setLang] = useState('am'); // 'am' or 'en'
-      const [selectedCat, setSelectedCat] = useState('all');
-      const [searchQuery, setSearchQuery] = useState('');
-      const [tableNum, setTableNum] = useState('1');
-      const [cart, setCart] = useState({}); // { itemId: { item, qty, note } }
-      const [isCartOpen, setIsCartOpen] = useState(false);
-      const [selectedItemForNote, setSelectedItemForNote] = useState(null);
-      const [tempNote, setTempNote] = useState('');
-      
-      // Order confirmation screen state
-      const [confirmedOrder, setConfirmedOrder] = useState(null);
-      const [showQRModal, setShowQRModal] = useState(false);
-
-      // Extract table parameter from URL if available (e.g., ?table=5)
-      useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const t = params.get('table');
-        if (t) setTableNum(t);
-      }, []);
-
-      // Toggle language handler
-      const toggleLang = () => setLang(prev => (prev === 'am' ? 'en' : 'am'));
-
-      // Cart Calculations
-      const cartCount = useMemo(() => {
-        return Object.values(cart).reduce((sum, item) => sum + item.qty, 0);
-      }, [cart]);
-
-      const cartTotal = useMemo(() => {
-        return Object.values(cart).reduce((sum, item) => sum + (item.item.price * item.qty), 0);
-      }, [cart]);
-
-      // Add to Cart
-      const addToCart = (item, e) => {
-        if (e) e.stopPropagation();
-        setCart(prev => {
-          const existing = prev[item.id];
-          const newQty = existing ? existing.qty + 1 : 1;
-          return {
-            ...prev,
-            [item.id]: { item, qty: newQty, note: existing ? existing.note : '' }
-          };
-        });
-      };
-
-      // Remove / Decrement
-      const removeFromCart = (itemId, e) => {
-        if (e) e.stopPropagation();
-        setCart(prev => {
-          const existing = prev[itemId];
-          if (!existing) return prev;
-          if (existing.qty <= 1) {
-            const updated = { ...prev };
-            delete updated[itemId];
-            return updated;
-          }
-          return {
-            ...prev,
-            [itemId]: { ...existing, qty: existing.qty - 1 }
-          };
-        });
-      };
-
-      // Open Custom Note Modal for item
-      const openNoteModal = (item) => {
-        setSelectedItemForNote(item);
-        setTempNote(cart[item.id]?.note || '');
-      };
-
-      const saveNote = () => {
-        if (!selectedItemForNote) return;
-        const itemId = selectedItemForNote.id;
-        setCart(prev => {
-          const existing = prev[itemId] || { item: selectedItemForNote, qty: 1, note: '' };
-          return {
-            ...prev,
-            [itemId]: { ...existing, note: tempNote }
-          };
-        });
-        setSelectedItemForNote(null);
-        setTempNote('');
-      };
-
-      // Place Order trigger
-      const handlePlaceOrder = () => {
-        if (cartCount === 0) return;
-        const orderId = 'AM-' + Math.floor(1000 + Math.random() * 9000);
-        const orderData = {
-          orderId,
-          tableNum,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          date: new Date().toLocaleDateString(),
-          items: Object.values(cart),
-          total: cartTotal
-        };
-        setConfirmedOrder(orderData);
-        setIsCartOpen(false);
-        setCart({});
-      };
-
-      // Filtered items
-      const filteredItems = useMemo(() => {
-        return MENU_ITEMS.filter(item => {
-          const matchCat = selectedCat === 'all' || item.cat === selectedCat;
-          const query = searchQuery.toLowerCase().trim();
-          const matchSearch = !query || 
-            item.name.en.toLowerCase().includes(query) ||
-            item.name.am.includes(query) ||
-            item.desc.en.toLowerCase().includes(query) ||
-            item.desc.am.includes(query);
-          return matchCat && matchSearch;
-        });
-      }, [selectedCat, searchQuery]);
-
-      return (
-        <div className="flex flex-col min-h-screen">
-          
-          <!-- TOP HEADER BAR -->
-          <header className="sticky top-0 z-30 bg-brand-900 text-stone-100 shadow-md border-b border-brand-800">
-            <div className="px-4 py-3 flex items-center justify-between">
-              
-              {/* Brand Logo & Name */}
-              <div className="flex items-center space-x-2">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-500 to-amber-400 flex items-center justify-center text-white font-extrabold text-xl shadow-lg border border-amber-300">
-                  AM
-                </div>
-                <div>
-                  <h1 className="font-bold text-base leading-tight tracking-wide text-amber-100">
-                    A.M Coffee & Juice
-                  </h1>
-                  <p className="text-xs text-amber-300 font-medium">
-                    {lang === 'am' ? 'ካፌ እና የጁስ ባር' : 'Café & Juice Bar'}
-                  </p>
-                </div>
-              </div>
-
-              {/* Controls Right: Table Selector & Lang Switcher */}
-              <div className="flex items-center space-x-2">
-                
-                {/* Table Picker Badge */}
-                <div className="bg-stone-800/80 border border-brand-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 text-xs text-amber-200">
-                  <span className="text-stone-400 font-semibold">{lang === 'am' ? 'ጠረጴዛ' : 'Table'}</span>
-                  <select 
-                    value={tableNum} 
-                    onChange={(e) => setTableNum(e.target.value)}
-                    className="bg-transparent text-amber-400 font-bold focus:outline-none cursor-pointer"
-                  >
-                    {[...Array(20)].map((_, i) => (
-                      <option key={i+1} value={i+1} className="bg-stone-900 text-white">#{i+1}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Language Switch Button */}
-                <button
-                  onClick={toggleLang}
-                  className="bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg shadow transition active:scale-95 flex items-center space-x-1"
-                  title="Toggle Amharic / English"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                  </svg>
-                  <span>{lang === 'am' ? 'EN' : 'አማርኛ'}</span>
-                </button>
-              </div>
-
-            </div>
-
-            {/* SEARCH & QUICK ACTION BAR */}
-            <div className="px-4 pb-3 pt-1 bg-brand-900/90">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={lang === 'am' ? 'ምግብ ወይም መጠጥ ፈልግ...' : 'Search coffee, juice, food...'}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-stone-800/90 text-stone-100 placeholder-stone-400 text-sm pl-9 pr-8 py-2 rounded-xl border border-stone-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                />
-                <svg className="w-4 h-4 text-stone-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                {searchQuery && (
-                  <button 
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2.5 top-2.5 text-stone-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* HORIZONTAL CATEGORY SCROLLER */}
-            <div className="px-3 py-2 bg-stone-900 border-t border-stone-800 flex space-x-2 overflow-x-auto no-scrollbar scroll-smooth">
-              {CATEGORIES.map(cat => {
-                const isActive = selectedCat === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCat(cat.id)}
-                    className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition-all ${
-                      isActive 
-                        ? 'bg-brand-500 text-white shadow-md shadow-brand-500/30 scale-105' 
-                        : 'bg-stone-800 text-stone-300 hover:bg-stone-700'
-                    }`}
-                  >
-                    <span>{cat.icon}</span>
-                    <span>{cat.label[lang]}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </header>
-
-          {/* MAIN MENU ITEM LIST */}
-          <main className="flex-1 px-4 py-4 space-y-3">
-            
-            {/* Banner/Notice */}
-            <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-3 rounded-2xl shadow-sm flex items-center justify-between">
-              <div>
-                <span className="text-[10px] uppercase font-extrabold tracking-wider bg-white/20 px-2 py-0.5 rounded-full">
-                  {lang === 'am' ? 'እንኳን ደህና መጡ' : 'Welcome'}
-                </span>
-                <p className="text-xs font-medium mt-1">
-                  {lang === 'am' 
-                    ? 'ትዕዛዝዎን በቀጥታ ከስልክዎ ይምረጡና ይላኩ!' 
-                    : 'Select your favorite order & send directly to our waiter!'}
-                </p>
-              </div>
-              <button 
-                onClick={() => setShowQRModal(true)}
-                className="bg-stone-900/40 hover:bg-stone-900/60 text-amber-100 text-xs px-2.5 py-1.5 rounded-lg flex items-center space-x-1 border border-white/20"
-              >
-                <span>📷</span>
-                <span className="text-[11px] font-bold">{lang === 'am' ? 'QR ኮድ' : 'QR Code'}</span>
-              </button>
-            </div>
-
-            {/* Category Title Header */}
-            <div className="flex items-center justify-between pt-1">
-              <h2 className="text-sm font-bold text-stone-700 uppercase tracking-wider">
-                {CATEGORIES.find(c => c.id === selectedCat)?.label[lang]} ({filteredItems.length})
-              </h2>
-              {searchQuery && (
-                <span className="text-xs text-brand-600 font-medium">
-                  {lang === 'am' ? 'የፍለጋ ውጤት' : 'Search results'}
-                </span>
-              )}
-            </div>
-
-            {/* Items Grid/List */}
-            {filteredItems.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-2xl border border-stone-200 p-6">
-                <div className="text-4xl mb-2">🔍</div>
-                <h3 className="font-bold text-stone-700">
-                  {lang === 'am' ? 'ምንም አይነት ነገር አልተገኘም' : 'No items found'}
-                </h3>
-                <p className="text-xs text-stone-500 mt-1">
-                  {lang === 'am' ? 'እባክዎ ሌላ ቃል ፈልገው ይሞክሩ' : 'Try searching for something else'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredItems.map(item => {
-                  const inCart = cart[item.id];
-                  const qty = inCart ? inCart.qty : 0;
-                  
-                  return (
-                    <div 
-                      key={item.id}
-                      onClick={() => openNoteModal(item)}
-                      className="bg-white rounded-2xl p-3.5 shadow-sm border border-stone-200/80 hover:border-brand-500/40 transition flex items-start justify-between relative cursor-pointer group active:bg-stone-50"
-                    >
-                      {/* Left Item Details */}
-                      <div className="flex-1 pr-3">
-                        <div className="flex items-center space-x-1.5 flex-wrap">
-                          <h3 className="font-bold text-stone-900 text-sm group-hover:text-brand-600 transition">
-                            {item.name[lang]}
-                          </h3>
-                          {item.tags.map((tag, idx) => (
-                            <span key={idx} className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-md">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-
-                        <p className="text-xs text-stone-500 mt-1 leading-relaxed line-clamp-2">
-                          {item.desc[lang]}
-                        </p>
-
-                        <div className="mt-2.5 flex items-center space-x-3">
-                          <span className="font-black text-stone-900 text-sm">
-                            {item.price} <span className="text-xs font-semibold text-brand-600">{lang === 'am' ? 'ብር' : 'ETB'}</span>
-                          </span>
-
-                          {/* Show Note Indicator if custom note exists */}
-                          {inCart?.note && (
-                            <span className="text-[10px] bg-stone-100 text-stone-600 italic px-2 py-0.5 rounded border border-stone-200 truncate max-w-[140px]">
-                              📝 "{inCart.note}"
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Right Stepper / Add Button */}
-                      <div className="flex flex-col items-end justify-between space-y-2" onClick={e => e.stopPropagation()}>
-                        {qty === 0 ? (
-                          <button
-                            onClick={(e) => addToCart(item, e)}
-                            className="bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm flex items-center space-x-1 transition"
-                          >
-                            <span>+</span>
-                            <span>{lang === 'am' ? 'ጨምር' : 'Add'}</span>
-                          </button>
-                        ) : (
-                          <div className="flex items-center bg-stone-100 border border-brand-500/30 rounded-xl p-1 shadow-inner">
-                            <button
-                              onClick={(e) => removeFromCart(item.id, e)}
-                              className="w-7 h-7 bg-white text-stone-800 font-bold rounded-lg shadow-sm flex items-center justify-center hover:bg-stone-200 active:scale-90 text-sm"
-                            >
-                              -
-                            </button>
-                            <span className="w-7 text-center font-bold text-sm text-stone-900">
-                              {qty}
-                            </span>
-                            <button
-                              onClick={(e) => addToCart(item, e)}
-                              className="w-7 h-7 bg-brand-500 text-white font-bold rounded-lg shadow-sm flex items-center justify-center hover:bg-brand-600 active:scale-90 text-sm"
-                            >
-                              +
-                            </button>
-                          </div>
-                        )}
-                        
-                        <button
-                          onClick={() => openNoteModal(item)}
-                          className="text-[10px] text-stone-400 hover:text-brand-600 underline font-medium"
-                        >
-                          {lang === 'am' ? 'ማስታወሻ' : 'Custom Note'}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </main>
-
-          {/* STICKY BOTTOM FLOATING CART BAR */}
-          {cartCount > 0 && !isCartOpen && !confirmedOrder && (
-            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md p-3 z-40 bg-gradient-to-t from-stone-900/80 to-transparent">
-              <button
-                onClick={() => setIsCartOpen(true)}
-                className="w-full bg-brand-500 hover:bg-brand-600 text-white p-3.5 rounded-2xl shadow-xl flex items-center justify-between animate-bounce-short transition active:scale-[0.99]"
-              >
-                <div className="flex items-center space-x-2.5">
-                  <div className="bg-white/20 text-white font-extrabold text-xs px-2.5 py-1 rounded-lg">
-                    {cartCount}
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs text-white/80 uppercase tracking-wider font-semibold">
-                      {lang === 'am' ? 'ትዕዛዝዎን ይመልከቱ' : 'View Order'}
-                    </div>
-                    <div className="text-sm font-bold">
-                      {lang === 'am' ? 'ጠረጴዛ' : 'Table'} #{tableNum}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <span className="text-base font-extrabold">
-                    {cartTotal} <span className="text-xs font-medium">{lang === 'am' ? 'ብር' : 'ETB'}</span>
-                  </span>
-                  <span className="text-lg">➔</span>
-                </div>
-              </button>
-            </div>
-          )}
-
-          {/* SLIDE-UP CART DRAWER MODAL */}
-          {isCartOpen && (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm animate-fadeIn">
-              <div 
-                className="bg-white w-full max-w-md rounded-t-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden"
-                onClick={e => e.stopPropagation()}
-              >
-                {/* Cart Header */}
-                <div className="p-4 bg-brand-900 text-white flex items-center justify-between border-b border-stone-800">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xl">🛒</span>
-                    <div>
-                      <h3 className="font-bold text-base">{lang === 'am' ? 'የእርስዎ ትዕዛዝ' : 'Your Order'}</h3>
-                      <p className="text-xs text-amber-300">
-                        {lang === 'am' ? `ጠረጴዛ ቁጥር #${tableNum}` : `Table #${tableNum}`}
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setIsCartOpen(false)}
-                    className="w-8 h-8 rounded-full bg-stone-800 text-stone-300 flex items-center justify-center text-sm font-bold hover:bg-stone-700"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                {/* Cart Itemized List */}
-                <div className="p-4 flex-1 overflow-y-auto space-y-3">
-                  {Object.values(cart).length === 0 ? (
-                    <div className="text-center py-8 text-stone-500 text-sm">
-                      {lang === 'am' ? 'ካርትዎ ባዶ ነው' : 'Your cart is empty'}
-                    </div>
-                  ) : (
-                    Object.values(cart).map(({ item, qty, note }) => (
-                      <div key={item.id} className="bg-stone-50 p-3 rounded-xl border border-stone-200 flex items-center justify-between">
-                        <div className="flex-1 pr-2">
-                          <h4 className="font-bold text-stone-900 text-sm">{item.name[lang]}</h4>
-                          <p className="text-xs text-brand-600 font-semibold mt-0.5">
-                            {item.price} x {qty} = {item.price * qty} ETB
-                          </p>
-                          {note && (
-                            <p className="text-[11px] text-stone-500 italic mt-1 bg-white p-1 rounded border">
-                              📝 {note}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Stepper */}
-                        <div className="flex items-center space-x-1.5 bg-white border rounded-lg p-1">
-                          <button
-                            onClick={() => removeFromCart(item.id)}
-                            className="w-6 h-6 bg-stone-200 text-stone-800 font-bold rounded flex items-center justify-center text-xs"
-                          >
-                            -
-                          </button>
-                          <span className="w-6 text-center font-bold text-xs">{qty}</span>
-                          <button
-                            onClick={() => addToCart(item)}
-                            className="w-6 h-6 bg-brand-500 text-white font-bold rounded flex items-center justify-center text-xs"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-
-                  {/* Table Selection inside cart */}
-                  <div className="mt-4 p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-900">
-                      {lang === 'am' ? 'የሚቀመጡበት ጠረጴዛ ይምረጡ:' : 'Confirm Table Number:'}
-                    </span>
-                    <select
-                      value={tableNum}
-                      onChange={(e) => setTableNum(e.target.value)}
-                      className="bg-white border border-amber-300 font-bold text-stone-900 rounded-lg px-3 py-1 text-xs focus:outline-none"
-                    >
-                      {[...Array(20)].map((_, i) => (
-                        <option key={i+1} value={i+1}>Table #{i+1}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Footer Subtotal & Action */}
-                <div className="p-4 bg-stone-100 border-t border-stone-200 space-y-3">
-                  <div className="flex justify-between items-center text-sm font-bold text-stone-900">
-                    <span>{lang === 'am' ? 'ጠቅላላ ክፍያ (Subtotal):' : 'Subtotal:'}</span>
-                    <span className="text-lg text-brand-600 font-black">{cartTotal} ETB</span>
-                  </div>
-
-                  <button
-                    onClick={handlePlaceOrder}
-                    disabled={cartCount === 0}
-                    className="w-full bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center space-x-2 text-sm transition"
-                  >
-                    <span>✅</span>
-                    <span>{lang === 'am' ? 'አሁን እዘዝ (Confirm Order)' : 'Confirm & Send Order'}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* CUSTOM ITEM NOTE MODAL */}
-          {selectedItemForNote && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-              <div className="bg-white w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <h3 className="font-bold text-stone-900 text-sm">
-                    {selectedItemForNote.name[lang]}
-                  </h3>
-                  <button 
-                    onClick={() => setSelectedItemForNote(null)}
-                    className="text-stone-400 font-bold hover:text-stone-600"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <p className="text-xs text-stone-500">
-                  {selectedItemForNote.desc[lang]}
-                </p>
-
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">
-                    {lang === 'am' ? 'ልዩ ትዕዛዝ / ማስታወሻ (ምሳሌ፡ ያለ ስኳር፣ በደንብ ይጠበስ)' : 'Special Instructions (e.g. No sugar, extra crispy)'}
-                  </label>
-                  <textarea
-                    rows="3"
-                    value={tempNote}
-                    onChange={(e) => setTempNote(e.target.value)}
-                    placeholder={lang === 'am' ? 'ማስታወሻዎን እዚህ ይጻፉ...' : 'Type note for kitchen/bar...'}
-                    className="w-full border border-stone-300 rounded-xl p-2.5 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  ></textarea>
-                </div>
-
-                <div className="flex space-x-2 pt-2">
-                  <button
-                    onClick={() => setSelectedItemForNote(null)}
-                    className="flex-1 py-2 text-xs font-bold text-stone-600 bg-stone-100 rounded-xl hover:bg-stone-200"
-                  >
-                    {lang === 'am' ? 'ተመለስ' : 'Cancel'}
-                  </button>
-                  <button
-                    onClick={saveNote}
-                    className="flex-1 py-2 text-xs font-bold text-white bg-brand-500 rounded-xl hover:bg-brand-600"
-                  >
-                    {lang === 'am' ? 'አስቀምጥ' : 'Save Note'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* CONFIRMED ORDER RECEIPT SCREEN / MODAL */}
-          {confirmedOrder && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 overflow-y-auto">
-              <div className="bg-white w-full max-w-sm rounded-3xl p-5 shadow-2xl space-y-4 my-auto relative">
-                
-                {/* Success Badge */}
-                <div className="text-center">
-                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-2 animate-bounce">
-                    ✓
-                  </div>
-                  <h3 className="font-extrabold text-lg text-stone-900">
-                    {lang === 'am' ? 'ትዕዛዝዎ በተሳካ ሁኔታ ተልኳል!' : 'Order Placed Successfully!'}
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    {lang === 'am' ? 'እባክዎ ለአስተናጋጁ ያሳዩ ወይም በስልክ ይላኩ' : 'Please show this screen or send to waiter'}
-                  </p>
-                </div>
-
-                {/* Printable Digital Receipt Card */}
-                <div className="bg-stone-50 p-4 rounded-2xl border border-dashed border-stone-300 font-mono text-xs text-stone-800 space-y-2">
-                  <div className="text-center border-b pb-2">
-                    <p className="font-bold text-stone-900 text-sm">A.M COFFEE & JUICE</p>
-                    <p className="text-[10px] text-stone-500">Order #{confirmedOrder.orderId} • Table #{confirmedOrder.tableNum}</p>
-                    <p className="text-[10px] text-stone-400">{confirmedOrder.date} - {confirmedOrder.timestamp}</p>
-                  </div>
-
-                  <div className="space-y-1 py-1">
-                    {confirmedOrder.items.map(({ item, qty, note }, idx) => (
-                      <div key={idx} className="flex justify-between items-start">
-                        <div>
-                          <span>{qty}x {item.name[lang]}</span>
-                          {note && <p className="text-[9px] text-stone-500 italic">└ Note: {note}</p>}
-                        </div>
-                        <span className="font-bold">{item.price * qty} ETB</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border-t pt-2 flex justify-between font-bold text-sm text-stone-900">
-                    <span>TOTAL:</span>
-                    <span className="text-brand-600">{confirmedOrder.total} ETB</span>
-                  </div>
-                </div>
-
-                {/* Dispatch Options */}
-                <div className="space-y-2">
-                  <button
-                    onClick={() => {
-                      const text = `*A.M Coffee & Juice Order*\n*Order ID:* ${confirmedOrder.orderId}\n*Table:* #${confirmedOrder.tableNum}\n\n` + 
-                        confirmedOrder.items.map(i => `• ${i.qty}x ${i.item.name.en}${i.note ? ` (${i.note})` : ''}`).join('\n') +
-                        `\n\n*Total:* ${confirmedOrder.total} ETB`;
-                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-                    }}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2"
-                  >
-                    <span>💬</span>
-                    <span>{lang === 'am' ? 'በ WhatsApp ለአስተናጋጅ ላክ' : 'Send via WhatsApp to Waiter'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      const text = `A.M Coffee Order #${confirmedOrder.orderId} (Table ${confirmedOrder.tableNum}): ` +
-                        confirmedOrder.items.map(i => `${i.qty}x ${i.item.name.en}`).join(', ') +
-                        ` | Total: ${confirmedOrder.total} ETB`;
-                      navigator.clipboard.writeText(text);
-                      alert(lang === 'am' ? 'ትዕዛዙ ተገልብጧል!' : 'Order details copied to clipboard!');
-                    }}
-                    className="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center space-x-2"
-                  >
-                    <span>📋</span>
-                    <span>{lang === 'am' ? 'ትዕዛዙን ኮፒ አድርግ (Copy Summary)' : 'Copy Order Text'}</span>
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => setConfirmedOrder(null)}
-                  className="w-full border border-stone-300 text-stone-600 font-bold py-2 rounded-xl text-xs hover:bg-stone-100"
-                >
-                  {lang === 'am' ? 'ወደ ዋናው ገጽ ተመለስ' : 'Close & Back to Menu'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* QR CODE GENERATOR MODAL FOR CAFE MANAGERS */}
-          {showQRModal && (
-            <QRCodeModal 
-              lang={lang} 
-              tableNum={tableNum} 
-              onClose={() => setShowQRModal(false)} 
-            />
-          )}
-
+<div class="modal-backdrop" id="cartModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle" style="font-size:1.15rem;font-weight:900;">የእርስዎ ትዕዛዝ እና ክፍያ</h2>
+      <button class="close-btn" onclick="closeCart()">✕</button>
+    </div>
+    <div id="cartItemsList"></div>
+    <textarea id="orderNote" class="note-input" rows="2" placeholder="ተጨማሪ ማሳሰቢያ ካለ እዚህ ይጻፉ (ለምሳሌ፦ ያለ ስኳር፣ በርበሬ ይቀንስ)..."></textarea>
+    <div class="extras-bar">
+      <span>🙏 ቲፕ (Tip):</span>
+      <div class="tip-pills">
+        <button class="tip-btn active" onclick="setTip(0, this)">0</button>
+        <button class="tip-btn" onclick="setTip(20, this)">+20</button>
+        <button class="tip-btn" onclick="setTip(50, this)">+50</button>
+        <button class="tip-btn" onclick="setTip(100, this)">+100</button>
+      </div>
+    </div>
+    <div class="extras-bar">
+      <span>👥 ሂሳብ መከፋፈያ (Split Bill):</span>
+      <div class="tip-pills">
+        <button class="tip-btn active" onclick="setSplit(1, this)">1 ሰው</button>
+        <button class="tip-btn" onclick="setSplit(2, this)">2</button>
+        <button class="tip-btn" onclick="setSplit(3, this)">3</button>
+        <button class="tip-btn" onclick="setSplit(4, this)">4</button>
+      </div>
+    </div>
+    <div id="splitResult" style="display:none;text-align:right;font-size:0.82rem;font-weight:800;color:var(--accent);margin-bottom:8px;"></div>
+    <div class="payment-box">
+      <div class="payment-header">💳 የመክፈያ አማራጮች (ለመኮረጅ አካውንቱን ይንኩ)</div>
+      <div class="pay-method-grid">
+        <div class="pay-card selected" id="payTelebirr" onclick="selectPayment('Telebirr', '0988591597')">
+          <div class="pay-title"><span>📱 Telebirr</span></div>
+          <div class="pay-acc">0988591597</div>
+          <span class="copy-tag">Copy ቁጥር</span>
         </div>
-      );
-    }
+        <div class="pay-card" id="payCBE" onclick="selectPayment('CBE', '1000031478077')">
+          <div class="pay-title"><span>🏦 CBE (ንግድ ባንክ)</span></div>
+          <div class="pay-acc">1000031478077</div>
+          <span class="copy-tag">Copy አካውንት</span>
+        </div>
+      </div>
+    </div>
+    <div class="summary-row">
+      <span id="totalLabel">ጠቅላላ ሂሳብ</span>
+      <span id="modalTotal">0 ETB</span>
+    </div>
+    <button class="action-btn btn-tg" onclick="sendDirect('tg')">
+      <span>✈️</span> <span>በ Telegram ትዕዛዝ ላክ (@bdmh1)</span>
+    </button>
+    <button class="action-btn btn-sms" onclick="sendDirect('sms')">
+      <span>💬</span> <span>በስልክ መልዕክት (SMS) ላክ (0994676677)</span>
+    </button>
+    <button class="action-btn btn-copy" onclick="copyOrderText()">
+      <span>📋</span> <span>ሙሉ ትዕዛዙን ኮፒ አድርግ (Copy Order)</span>
+    </button>
+    <div class="receipt-box" id="liveReceiptPreview"></div>
+  </div>
+</div>
 
-    // --- QR CODE GENERATOR COMPONENT ---
-    function QRCodeModal({ lang, tableNum, onClose }) {
-      const qrRef = useRef(null);
-      const [qrTable, setQrTable] = useState(tableNum || '1');
+<div class="modal-backdrop" id="payOnlyModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 style="font-size:1.15rem;font-weight:900;">💳 የ A.M Coffee & Juice የመክፈያ አካውንቶች</h2>
+      <button class="close-btn" onclick="document.getElementById('payOnlyModal').classList.remove('open')">✕</button>
+    </div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">ከታች ያለውን የመክፈያ ቁጥር በመንካት ኮፒ አድርገው ክፍያ መፈጸም ይችላሉ፦</p>
+    <div class="pay-card selected" style="margin-bottom:10px;" onclick="copyAccount('0988591597', 'Telebirr')">
+      <div class="pay-title"><span>📱 Telebirr (ቴሌብር)</span><span class="copy-tag">Copy ቁጥር</span></div>
+      <div class="pay-acc" style="font-size:1.15rem;">0988591597</div>
+    </div>
+    <div class="pay-card selected" onclick="copyAccount('1000031478077', 'CBE')">
+      <div class="pay-title"><span>🏦 Commercial Bank of Ethiopia (CBE)</span><span class="copy-tag">Copy አካውንት</span></div>
+      <div class="pay-acc" style="font-size:1.15rem;">1000031478077</div>
+    </div>
+  </div>
+</div>
 
-      useEffect(() => {
-        if (qrRef.current) {
-          qrRef.current.innerHTML = '';
-          const targetUrl = `${window.location.origin}${window.location.pathname}?table=${qrTable}`;
-          new QRCode(qrRef.current, {
-            text: targetUrl,
-            width: 160,
-            height: 160,
-            colorDark: '#2c1a14',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-          });
-        }
-      }, [qrTable]);
+<script>
+const TG_USER = "bdmh1";
+const SMS_PHONE = "0994676677";
 
-      return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="bg-white w-full max-w-xs rounded-3xl p-5 shadow-2xl text-center space-y-4">
-            
-            <div className="flex justify-between items-center border-b pb-2">
-              <h3 className="font-bold text-stone-900 text-sm">
-                {lang === 'am' ? 'የጠረጴዛ QR ኮድ ማመንጫ' : 'Table QR Code Generator'}
-              </h3>
-              <button onClick={onClose} className="text-stone-400 font-bold hover:text-stone-600">✕</button>
+const menuData = [
+  { id: 1, cat: 'breakfast', tag: '', en: 'Normal Fetira', am: 'ኖርማል ፈጢራ', descEn: 'Crispy golden layered flatbread', descAm: 'ትኩስ እና ጣፋጭ ባህላዊ ፈጢራ', price: 200, bg: 'linear-gradient(135deg,#D97706,#92400E)', emoji: '🫓', label: 'FETIRA' },
+  { id: 2, cat: 'breakfast', tag: 'Special', en: 'Special Fetira', am: 'ስፔሻል ፈጢራ', descEn: 'Honey, creamy avocado & egg', descAm: 'በንጹህ ማር፣ አቮካዶ እና እንቁላል', price: 300, bg: 'linear-gradient(135deg,#B45309,#78350F)', emoji: '🍯', label: 'SPECIAL' },
+  { id: 3, cat: 'breakfast', tag: 'Fasting', en: 'Ful', am: 'ፉል', descEn: 'Spiced fava beans with olive oil', descAm: 'በቅመማ ቅመም የተዘጋጀ ትኩስ ፉል', price: 300, bg: 'linear-gradient(135deg,#9A3412,#7C2D12)', emoji: '🍲', label: 'FUL' },
+  { id: 4, cat: 'breakfast', tag: 'Special', en: 'Special Ful', am: 'ስፔሻል ፉል', descEn: 'Topped with fresh yoghurt & egg', descAm: 'እርጎ እና እንቁላል የተጨመረበት', price: 450, bg: 'linear-gradient(135deg,#C2410C,#7C2D12)', emoji: '🥣', label: 'SPECIAL FUL' },
+  { id: 5, cat: 'breakfast', tag: '', en: 'Normal Chechebsa', am: 'ኖርማል ጨጨብሳ', descEn: 'Traditional spiced flatbread pieces', descAm: 'በቅቤ እና በርበሬ የተዘጋጀ ጨጨብሳ', price: 300, bg: 'linear-gradient(135deg,#DC2626,#991B1B)', emoji: '🥘', label: 'CHECHEBSA' },
+  { id: 6, cat: 'breakfast', tag: 'Special', en: 'Special Chechebsa', am: 'ስፔሻል ጨጨብሳ', descEn: 'Served with honey & scrambled egg', descAm: 'ማር እና እንቁላል ያለው ልዩ ጨጨብሳ', price: 450, bg: 'linear-gradient(135deg,#B91C1C,#7F1D1D)', emoji: '🍳', label: 'SPECIAL' },
+  { id: 7, cat: 'breakfast', tag: '', en: 'Enkulal Firfir', am: 'እንቁላል ፍርፍር', descEn: 'Fluffy spiced scrambled eggs', descAm: 'ትኩስ የእንቁላል ፍርፍር', price: 350, bg: 'linear-gradient(135deg,#EAB308,#A16207)', emoji: '🍳', label: 'FIRFIR' },
+  { id: 8, cat: 'breakfast', tag: '', en: 'Egg Sandwich', am: 'የእንቁላል ሳንድዊች', descEn: 'Toasted bread with farm egg', descAm: 'ትኩስ የእንቁላል ሳንድዊች', price: 350, bg: 'linear-gradient(135deg,#D97706,#92400E)', emoji: '🥪', label: 'SANDWICH' },
+  { id: 9, cat: 'breakfast', tag: '', en: 'Tuna Sandwich', am: 'የቱና ሳንድዊች', descEn: 'Seasoned tuna & crisp veggies', descAm: 'በቱና እና አትክልት የተዘጋጀ', price: 450, bg: 'linear-gradient(135deg,#0284C7,#075985)', emoji: '🥖', label: 'TUNA' },
+  { id: 10, cat: 'breakfast', tag: 'Popular', en: 'Omelet', am: 'ኦምሌት', descEn: 'Served with fresh avocado & chips', descAm: 'አቮካዶ እና ቺፕስ ያለው ሙሉ ኦምሌት', price: 550, bg: 'linear-gradient(135deg,#CA8A04,#854D0E)', emoji: '🥑', label: 'OMELET' },
+  { id: 11, cat: 'lunch', tag: 'Fasting', en: 'Vegetable Wrap', am: 'የአትክልት ራፕ', descEn: 'Grilled seasonal veggies in soft wrap', descAm: 'ትኩስ የተጠበሱ አትክልቶች', price: 350, bg: 'linear-gradient(135deg,#16A34A,#166534)', emoji: '🌯', label: 'VEG WRAP' },
+  { id: 12, cat: 'lunch', tag: '', en: 'Tuna with Egg Wrap', am: 'ቱና በእንቁላል ራፕ', descEn: 'Savory tuna and egg tortilla wrap', descAm: 'ቱና እና እንቁላል በአንድ ላይ', price: 500, bg: 'linear-gradient(135deg,#EA580C,#9A3412)', emoji: '🌮', label: 'TUNA WRAP' },
+  { id: 13, cat: 'lunch', tag: 'Popular', en: 'Chicken Wrap', am: 'የዶሮ ራፕ', descEn: 'Tender marinated chicken & house sauce', descAm: 'በልዩ ቅመም የተጠበሰ የዶሮ ራፕ', price: 600, bg: 'linear-gradient(135deg,#B45309,#78350F)', emoji: '🌯', label: 'CHICKEN' },
+  { id: 14, cat: 'snack', tag: 'Fasting', en: 'French Fries', am: 'ፍሬንች ፍራይስ (ቺፕስ)', descEn: 'Crispy golden potato fries', descAm: 'ትኩስ እና ጣፋጭ ቺፕስ', price: 280, bg: 'linear-gradient(135deg,#EAB308,#A16207)', emoji: '🍟', label: 'FRIES' },
+  { id: 15, cat: 'snack', tag: 'Fasting', en: 'Spring Roll', am: 'ስፕሪንግ ሮል', descEn: 'Crunchy vegetable spring rolls', descAm: 'የአትክልት ስፕሪንግ ሮል', price: 300, bg: 'linear-gradient(135deg,#D97706,#92400E)', emoji: '🥟', label: 'SPRING ROLL' },
+  { id: 16, cat: 'snack', tag: 'Popular', en: 'French Fries with Cheese', am: 'ቺፕስ በቺዝ', descEn: 'Loaded with melted cheddar cheese', descAm: 'በቀለጠ ቺዝ የተዘጋጀ ቺፕስ', price: 350, bg: 'linear-gradient(135deg,#F59E0B,#B45309)', emoji: '🧀', label: 'CHEESE FRIES' },
+  { id: 17, cat: 'snack', tag: 'Fasting', en: 'Sanbusa Ye Mesir (6 pcs)', am: 'የምስር ሳንቡሳ (6 ፍሬ)', descEn: 'Crispy spiced lentil pastries', descAm: '6 ፍሬ ትኩስ የምስር ሳንቡሳ', price: 350, bg: 'linear-gradient(135deg,#B45309,#78350F)', emoji: '🔺', label: 'SANBUSA' },
+  { id: 18, cat: 'snack', tag: '', en: 'Sanbusa Ye Sega (6 pcs)', am: 'የስጋ ሳንቡሳ (6 ፍሬ)', descEn: 'Savory minced beef pastries', descAm: '6 ፍሬ ትኩስ የስጋ ሳንቡሳ', price: 500, bg: 'linear-gradient(135deg,#991B1B,#7F1D1D)', emoji: '🔺', label: 'BEEF SANBUSA' },
+  { id: 19, cat: 'hot', tag: 'Fasting', en: 'Tea', am: 'ሻይ', descEn: 'Classic freshly brewed tea', descAm: 'ትኩስ ሻይ', price: 50, bg: 'linear-gradient(135deg,#B45309,#78350F)', emoji: '🫖', label: 'TEA' },
+  { id: 20, cat: 'hot', tag: 'Fasting', en: 'Ginger Tea', am: 'የዝንጅብል ሻይ', descEn: 'Soothing fresh ginger infusion', descAm: 'ትኩስ የዝንጅብል ሻይ', price: 70, bg: 'linear-gradient(135deg,#D97706,#92400E)', emoji: '🫚', label: 'GINGER TEA' },
+  { id: 21, cat: 'hot', tag: 'Fasting', en: 'Black Tea', am: 'ጥቁር ሻይ', descEn: 'Aromatic pure black tea', descAm: 'ጥቁር ሻይ', price: 80, bg: 'linear-gradient(135deg,#78350F,#451A03)', emoji: '🍵', label: 'BLACK TEA' },
+  { id: 22, cat: 'hot', tag: 'Fasting', en: 'Espresso', am: 'ቡና (Espresso)', descEn: 'Rich Ethiopian roast shot', descAm: 'ትኩስ የኢትዮጵያ ቡና', price: 80, bg: 'linear-gradient(135deg,#4A2C18,#2A1409)', emoji: '☕', label: 'ESPRESSO' },
+  { id: 23, cat: 'hot', tag: 'Fasting', en: 'Sprice (Coffee & Tea)', am: 'ስፕሪስ (ቡና እና ሻይ)', descEn: 'Traditional coffee & tea blend', descAm: 'ቡና እና ሻይ በአንድ ላይ', price: 80, bg: 'linear-gradient(135deg,#6E4226,#3B1F11)', emoji: '☕', label: 'SPRICE' },
+  { id: 24, cat: 'hot', tag: 'Fasting', en: 'Double Espresso', am: 'ደብል ኤስፕሬሶ', descEn: 'Bold double shot of coffee', descAm: 'ጠንካራ ደብል ቡና', price: 120, bg: 'linear-gradient(135deg,#3B1F11,#1C0D06)', emoji: '☕', label: 'DOUBLE' },
+  { id: 25, cat: 'hot', tag: 'Popular', en: 'Latte', am: 'ላቴ', descEn: 'Velvety steamed milk & espresso', descAm: 'ቡና በትኩስ ወተት', price: 150, bg: 'linear-gradient(135deg,#854D0E,#4A2C18)', emoji: '🥛', label: 'LATTE' },
+  { id: 26, cat: 'hot', tag: 'Special', en: 'Special Tea', am: 'ስፔሻል ሻይ', descEn: 'Spiced signature house tea', descAm: 'በልዩ ቅመማ ቅመም የተዘጋጀ', price: 200, bg: 'linear-gradient(135deg,#B45309,#78350F)', emoji: '✨', label: 'SPECIAL TEA' },
+  { id: 27, cat: 'hot', tag: 'Fasting', en: 'Fasting Macchiato', am: 'የጾም ማኪያቶ', descEn: 'Creamy plant-milk macchiato', descAm: 'የጾም ማኪያቶ', price: 200, bg: 'linear-gradient(135deg,#6E4226,#3B1F11)', emoji: '🤎', label: 'MACCHIATO' },
+  { id: 28, cat: 'hot', tag: 'Popular', en: 'Peanut Tea', am: 'የለውዝ ሻይ', descEn: 'Rich roasted peanut hot drink', descAm: 'ትኩስ እና ጣፋጭ የለውዝ ሻይ', price: 200, bg: 'linear-gradient(135deg,#A16207,#713F12)', emoji: '🥜', label: 'PEANUT TEA' },
+  { id: 29, cat: 'hot', tag: '', en: 'Hot Chocolate', am: 'ሆት ቾኮሌት', descEn: 'Smooth warm rich cocoa', descAm: 'ትኩስ ቾኮሌት', price: 220, bg: 'linear-gradient(135deg,#5C331D,#2A1409)', emoji: '🍫', label: 'CHOCOLATE' },
+  { id: 30, cat: 'juice', tag: 'Fasting', en: 'Mango Juice', am: 'የማንጎ ጁስ', descEn: '100% pure fresh blended mango', descAm: 'ንጹህ የተፈጨ ትኩስ ማንጎ', price: 250, bg: 'linear-gradient(135deg,#F59E0B,#D97706)', emoji: '🥭', label: 'MANGO' },
+  { id: 31, cat: 'juice', tag: 'Popular', en: 'Avocado Juice', am: 'የአቮካዶ ጁስ', descEn: 'Thick creamy fresh avocado', descAm: 'ወፍራም እና ትኩስ የአቮካዶ ጁስ', price: 250, bg: 'linear-gradient(135deg,#16A34A,#15803D)', emoji: '🥑', label: 'AVOCADO' },
+  { id: 32, cat: 'juice', tag: 'Fasting', en: 'Papaya Juice', am: 'የፓፓያ ጁስ', descEn: 'Sweet ripe papaya smoothie', descAm: 'ትኩስ የፓፓያ ጁስ', price: 250, bg: 'linear-gradient(135deg,#EA580C,#C2410C)', emoji: '🍈', label: 'PAPAYA' },
+  { id: 33, cat: 'juice', tag: 'Popular', en: 'Mixed (Spris) Juice', am: 'ስፕሪስ ጁስ', descEn: 'Colorful layers of avocado, mango & papaya', descAm: 'አቮካዶ፣ ማንጎ እና ፓፓያ ስፕሪስ', price: 300, bg: 'linear-gradient(135deg,#E11D48,#F59E0B)', emoji: '🍹', label: 'SPRIS JUICE' },
+  { id: 34, cat: 'juice', tag: 'Fasting', en: 'Detox Green Juice', am: 'ዲቶክስ ጁስ (Detox)', descEn: 'Spinach, ginger, green apple & lemon', descAm: 'ጤናማ የአትክልትና ፍራፍሬ ዲቶክስ', price: 320, bg: 'linear-gradient(135deg,#059669,#065F46)', emoji: '🥬', label: 'DETOX' },
+  { id: 35, cat: 'soft', tag: 'Fasting', en: 'Bottled Water (0.5L)', am: 'የታሸገ ውሃ (ግማሽ ሊትር)', descEn: 'Chilled purified water', descAm: 'ቀዝቃዛ የታሸገ ውሃ', price: 40, bg: 'linear-gradient(135deg,#0284C7,#0369A1)', emoji: '💧', label: 'WATER' },
+  { id: 36, cat: 'soft', tag: 'Fasting', en: 'Soft Drink (Coca / Sprite / Fanta)', am: 'ለስላሳ መጠጥ', descEn: 'Ice-cold carbonated drink', descAm: 'ቀዝቃዛ ኮካ፣ ስፕራይት ወይም ፋንታ', price: 70, bg: 'linear-gradient(135deg,#DC2626,#991B1B)', emoji: '🥤', label: 'SOFT DRINK' },
+  { id: 37, cat: 'soft', tag: 'Fasting', en: 'Ambo Mineral Water', am: 'አምቦ ውሃ', descEn: 'Naturally sparkling mineral water', descAm: 'ቀዝቃዛ አምቦ ውሃ', price: 70, bg: 'linear-gradient(135deg,#0D9488,#115E59)', emoji: '🫧', label: 'AMBO' }
+];
+
+const categories = [
+  { id: 'all', en: '✨ All', am: '✨ ሁሉም' },
+  { id: 'breakfast', en: '🍳 Breakfast', am: '🍳 ቁርስ' },
+  { id: 'lunch', en: '🌯 Lunch & Dinner', am: '🌯 ምሳ እና እራት' },
+  { id: 'snack', en: '🍟 Snack', am: '🍟 መክሰስ' },
+  { id: 'hot', en: '☕ Hot Drink', am: '☕ ትኩስ መጠጥ' },
+  { id: 'juice', en: '🥭 Juice & Detox', am: '🥭 ጁስ' },
+  { id: 'soft', en: '🥤 Soft Drink', am: '🥤 ለስላሳ' }
+];
+
+let lang = 'am';
+let activeCat = 'all';
+let activeTag = 'all';
+let cart = {};
+let tipAmount = 0;
+let splitCount = 1;
+let selectedPayMethod = 'Telebirr (0988591597)';
+let currentOrderId = 'AM-' + Math.floor(1000 + Math.random() * 9000);
+
+const tableSelect = document.getElementById('tableSelect');
+const urlParams = new URLSearchParams(window.location.search);
+const presetTable = urlParams.get('table');
+for (let i = 1; i <= 20; i++) {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.textContent = `ጠረጴዛ #${i}`;
+  if (presetTable == i) opt.selected = true;
+  tableSelect.appendChild(opt);
+}
+tableSelect.addEventListener('change', updateReceiptPreview);
+document.getElementById('orderNote').addEventListener('input', updateReceiptPreview);
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 2200);
+}
+
+function copyAccount(acc, name) {
+  navigator.clipboard.writeText(acc).then(() => {
+    showToast(`${name} (${acc}) ኮፒ ሆኗል!`);
+  });
+}
+
+function selectPayment(method, acc) {
+  selectedPayMethod = `${method} (${acc})`;
+  document.getElementById('payTelebirr').classList.toggle('selected', method === 'Telebirr');
+  document.getElementById('payCBE').classList.toggle('selected', method === 'CBE');
+  copyAccount(acc, method);
+  updateReceiptPreview();
+}
+
+function setTip(amt, btn) {
+  tipAmount = amt;
+  btn.parentElement.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateModalTotal();
+  updateReceiptPreview();
+}
+
+function setSplit(num, btn) {
+  splitCount = num;
+  btn.parentElement.querySelectorAll('.tip-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateModalTotal();
+}
+
+function setTagFilter(tag) {
+  activeTag = tag;
+  document.getElementById('qfAll').classList.toggle('active', tag === 'all');
+  document.getElementById('qfFasting').classList.toggle('active', tag === 'Fasting');
+  document.getElementById('qfPopular').classList.toggle('active', tag === 'Popular');
+  document.getElementById('qfSpecial').classList.toggle('active', tag === 'Special');
+  renderMenu();
+}
+
+function toggleLang() {
+  lang = lang === 'am' ? 'en' : 'am';
+  document.getElementById('langBtn').textContent = lang === 'am' ? 'EN' : 'አማ';
+  document.getElementById('subTitle').textContent = lang === 'am'
+    ? 'ምርጥ ቁርስ፣ ትኩስ ቡና እና ተፈጥሯዊ ጁሶች — ይምረጡና ይዘዙ'
+    : 'Fresh Breakfast, Ethiopian Coffee & Natural Juices — Order Direct';
+  document.getElementById('searchInput').placeholder = lang === 'am' ? 'ምግብ ወይም መጠጥ ይፈልጉ...' : 'Search food or drinks...';
+  document.getElementById('viewOrderText').textContent = lang === 'am' ? 'ትዕዛዝ እና ክፍያ' : 'Order & Pay';
+  document.getElementById('modalTitle').textContent = lang === 'am' ? 'የእርስዎ ትዕዛዝ እና ክፍያ' : 'Your Order & Payment';
+  document.getElementById('totalLabel').textContent = lang === 'am' ? 'ጠቅላላ ሂሳብ' : 'Total Amount';
+  Array.from(tableSelect.options).forEach((opt, idx) => {
+    opt.textContent = lang === 'am' ? `ጠረጴዛ #${idx + 1}` : `Table #${idx + 1}`;
+  });
+  renderTabs();
+  renderMenu();
+}
+
+function renderTabs() {
+  const container = document.getElementById('categoryTabs');
+  container.innerHTML = categories.map(c => `
+    <button class="cat-btn ${activeCat === c.id ? 'active' : ''}" onclick="setCat('${c.id}')">
+      ${lang === 'am' ? c.am : c.en}
+    </button>
+  `).join('');
+}
+
+function setCat(id) {
+  activeCat = id;
+  renderTabs();
+  renderMenu();
+}
+
+function renderMenu() {
+  const query = document.getElementById('searchInput').value.toLowerCase().trim();
+  const container = document.getElementById('menuContainer');
+  const filtered = menuData.filter(item => {
+    const matchCat = activeCat === 'all' || item.cat === activeCat;
+    const matchTag = activeTag === 'all' || item.tag === activeTag;
+    const matchQuery = !query || item.en.toLowerCase().includes(query) || item.am.includes(query);
+    return matchCat && matchTag && matchQuery;
+  });
+
+  if (!filtered.length) {
+    container.innerHTML = `<p style="text-align:center;color:var(--muted);margin-top:36px;font-weight:600;">${lang === 'am' ? 'የፈለጉት ምግብ አልተገኘም' : 'No items found'}</p>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(item => {
+    const qty = cart[item.id] || 0;
+    return `
+      <div class="item-card">
+        <div class="item-thumb" style="background:${item.bg}">
+          ${item.tag ? `<span class="tag-badge">${item.tag}</span>` : ''}
+          <span class="thumb-emoji">${item.emoji}</span>
+          <span class="thumb-label">${item.label}</span>
+        </div>
+        <div class="item-info">
+          <div class="item-name">${lang === 'am' ? item.am : item.en}</div>
+          <div class="item-desc">${lang === 'am' ? item.descAm : item.descEn}</div>
+          <div class="item-bottom">
+            <div class="item-price">${item.price} ETB</div>
+            <div class="stepper">
+              ${qty > 0 ? `<button class="step-btn minus" onclick="updateQty(${item.id}, -1)">−</button>
+              <span class="qty">${qty}</span>` : ''}
+              <button class="step-btn" onclick="updateQty(${item.id}, 1)">+</button>
             </div>
-
-            <div className="flex items-center justify-center space-x-2">
-              <span className="text-xs font-bold text-stone-600">
-                {lang === 'am' ? 'ጠረጴዛ ቁጥር:' : 'Select Table:'}
-              </span>
-              <select 
-                value={qrTable}
-                onChange={(e) => setQrTable(e.target.value)}
-                className="bg-amber-100 border border-amber-300 font-bold text-stone-900 rounded-lg px-2 py-1 text-xs focus:outline-none"
-              >
-                {[...Array(20)].map((_, i) => (
-                  <option key={i+1} value={i+1}>Table #{i+1}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* QR Card Preview */}
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 flex flex-col items-center justify-center shadow-inner">
-              <div className="font-extrabold text-stone-900 text-sm mb-1">A.M COFFEE & JUICE</div>
-              <div ref={qrRef} className="p-2 bg-white rounded-xl shadow-md my-2"></div>
-              <div className="text-xs font-black text-brand-600 uppercase tracking-widest mt-1">
-                SCAN TO ORDER • TABLE #{qrTable}
-              </div>
-            </div>
-
-            <p className="text-[11px] text-stone-500">
-              {lang === 'am' 
-                ? 'ይህንን QR ኮድ አትመው በጠረጴዛው ላይ በመልጠፍ ደንበኞች በስልካቸው እንዲያዙ ማድረግ ይችላሉ።' 
-                : 'Print and place this QR code on Table #' + qrTable + ' for instant scanning & ordering.'}
-            </p>
-
-            <button
-              onClick={() => window.print()}
-              className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 rounded-xl text-xs shadow"
-            >
-              🖨️ {lang === 'am' ? 'QR ኮዱን አትም (Print)' : 'Print QR Code'}
-            </button>
           </div>
         </div>
-      );
-    }
+      </div>
+    `;
+  }).join('');
+}
 
-    // Render React App
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+function updateQty(id, delta) {
+  cart[id] = (cart[id] || 0) + delta;
+  if (cart[id] <= 0) delete cart[id];
+  renderMenu();
+  updateCartBar();
+}
+
+function getSubtotal() {
+  let total = 0;
+  for (const [id, qty] of Object.entries(cart)) {
+    const item = menuData.find(m => m.id == id);
+    if (item) total += item.price * qty;
+  }
+  return total;
+}
+
+function updateCartBar() {
+  let count = 0;
+  for (const qty of Object.values(cart)) count += qty;
+  const total = getSubtotal();
+  const bar = document.getElementById('cartBar');
+  if (count > 0) {
+    bar.classList.add('visible');
+    document.getElementById('cartCount').textContent = count;
+    document.getElementById('cartTotal').textContent = `${total} ETB`;
+  } else {
+    bar.classList.remove('visible');
+    closeCart();
+  }
+}
+
+function updateModalTotal() {
+  const grandTotal = getSubtotal() + tipAmount;
+  document.getElementById('modalTotal').textContent = `${grandTotal} ETB`;
+  const splitEl = document.getElementById('splitResult');
+  if (splitCount > 1) {
+    const perPerson = Math.ceil(grandTotal / splitCount);
+    splitEl.style.display = 'block';
+    splitEl.textContent = lang === 'am'
+      ? `ለእያንዳንዱ ሰው (${splitCount} ሰዎች): ${perPerson} ETB`
+      : `Per person (${splitCount} people): ${perPerson} ETB`;
+  } else {
+    splitEl.style.display = 'none';
+  }
+}
+
+function buildOrderMessage() {
+  const tableNum = tableSelect.value;
+  const note = document.getElementById('orderNote').value.trim();
+  const subTotal = getSubtotal();
+  const grandTotal = subTotal + tipAmount;
+  let lines = [
+    `☕ A.M Coffee & Juice — አዲስ ትዕዛዝ`,
+    `🆔 Order: ${currentOrderId} | 🪑 ጠረጴዛ #${tableNum}`,
+    `------------------------`
+  ];
+  for (const [id, qty] of Object.entries(cart)) {
+    const item = menuData.find(m => m.id == id);
+    const sub = item.price * qty;
+    lines.push(`• ${qty}x ${item.am} (${item.en}) = ${sub} ETB`);
+  }
+  lines.push(`------------------------`);
+  if (tipAmount > 0) lines.push(`🙏 ቲፕ (Tip): ${tipAmount} ETB`);
+  lines.push(`💰 ጠቅላላ (Total): ${grandTotal} ETB`);
+  lines.push(`💳 ክፍያ (Payment): ${selectedPayMethod}`);
+  if (note) lines.push(`📝 ማሳሰቢያ (Note): ${note}`);
+  return lines.join('\n');
+}
+
+function updateReceiptPreview() {
+  document.getElementById('liveReceiptPreview').textContent = buildOrderMessage();
+}
+
+function openCart() {
+  currentOrderId = 'AM-' + Math.floor(1000 + Math.random() * 9000);
+  const list = document.getElementById('cartItemsList');
+  list.innerHTML = Object.entries(cart).map(([id, qty]) => {
+    const item = menuData.find(m => m.id == id);
+    const sub = item.price * qty;
+    return `
+      <div class="cart-item">
+        <div>
+          <div style="font-weight:800;">${lang === 'am' ? item.am : item.en}</div>
+          <div style="font-size:0.82rem;color:var(--muted);">${item.price} ETB × ${qty}</div>
+        </div>
+        <div style="font-weight:900;color:var(--primary);">${sub} ETB</div>
+      </div>
+    `;
+  }).join('');
+  updateModalTotal();
+  updateReceiptPreview();
+  document.getElementById('cartModal').classList.add('open');
+}
+
+function openPayOnly() {
+  document.getElementById('payOnlyModal').classList.add('open');
+}
+
+function closeCart() {
+  document.getElementById('cartModal').classList.remove('open');
+}
+
+function sendDirect(channel) {
+  const msg = buildOrderMessage();
+  const encoded = encodeURIComponent(msg);
+  if (channel === 'tg') {
+    window.open(`https://t.me/${TG_USER}?text=${encoded}`, '_blank');
+  } else if (channel === 'sms') {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const sep = isIOS ? '&' : '?';
+    window.location.href = `sms:${SMS_PHONE}${sep}body=${encoded}`;
+  }
+}
+
+function copyOrderText() {
+  const msg = buildOrderMessage();
+  navigator.clipboard.writeText(msg).then(() => {
+    showToast(lang === 'am' ? 'ሙሉ ትዕዛዙ ኮፒ ሆኗል!' : 'Order details copied!');
+  });
+}
+
+renderTabs();
+renderMenu();
+</script>
 </body>
 </html>
