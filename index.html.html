@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>A.M Coffee & Juice — Digital Menu & Ordering</title>
+<title>A.M Coffee & Juice — Digital Menu & Spin Rewards</title>
 <style>
   :root {
     --primary: #143D32;
@@ -83,11 +83,11 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
   .brand-logo-svg {
-    width: 70px;
-    height: 70px;
+    width: 68px;
+    height: 68px;
     border-radius: 18px;
     background: #F4EFE6;
     border: 2px solid var(--gold);
@@ -97,8 +97,24 @@
     align-items: center;
     justify-content: center;
   }
-  .hero-title { font-size: 1.42rem; font-weight: 900; color: #fff; }
+  .hero-title { font-size: 1.4rem; font-weight: 900; color: #fff; }
   .hero-sub { font-size: 0.8rem; color: #D4E2DD; margin-top: 2px; }
+
+  /* Promo Banner encouraging QR ordering */
+  .promo-banner {
+    background: linear-gradient(90deg, rgba(200,155,84,0.25) 0%, rgba(217,119,36,0.3) 100%);
+    border: 1px solid rgba(200,155,84,0.5);
+    border-radius: 12px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #FEF3C7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .search-wrap { position: relative; }
   .search-wrap input {
     width: 100%;
@@ -288,7 +304,7 @@
   .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(10, 22, 18, 0.68);
+    background: rgba(10, 22, 18, 0.72);
     display: none;
     align-items: flex-end;
     justify-content: center;
@@ -339,6 +355,130 @@
     font-size: 0.9rem;
     background: var(--bg);
   }
+
+  /* Group & Spin Unlock Card inside Cart */
+  .spin-unlock-card {
+    background: linear-gradient(135deg, #143D32 0%, #1F5B4B 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    margin: 12px 0;
+    border: 1.5px solid var(--gold);
+  }
+  .spin-unlock-title {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #FDE68A;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .spin-unlock-desc {
+    font-size: 0.78rem;
+    color: #E2ECE9;
+    margin-bottom: 10px;
+  }
+  .group-size-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.1);
+    padding: 8px 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .group-pills { display: flex; gap: 5px; }
+  .grp-btn {
+    padding: 4px 9px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: transparent;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .grp-btn.active {
+    background: var(--gold);
+    color: #14221E;
+    border-color: var(--gold);
+  }
+  .phone-inputs-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 10px;
+  }
+  .phone-field {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(200,155,84,0.5);
+    background: #fff;
+    color: #111;
+    font-size: 0.86rem;
+    font-weight: 700;
+  }
+  .btn-spin-launch {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97724 100%);
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.92rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(217,119,36,0.4);
+  }
+
+  /* Wheel Modal */
+  .wheel-wrap {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    margin: 14px auto;
+  }
+  .wheel-pointer {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 24px solid #DC2626;
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+  canvas#wheelCanvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 5px solid var(--gold);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transition: transform 3.8s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+  }
+  .won-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  .won-pill {
+    background: #FEF3C7;
+    border: 1px solid #F59E0B;
+    color: #92400E;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
   .payment-box {
     background: #FBF9F5;
     border: 1px solid #E5D7BD;
@@ -481,12 +621,102 @@
     border-radius: 24px;
     font-size: 0.85rem;
     font-weight: 700;
-    z-index: 200;
+    z-index: 250;
     display: none;
+    text-align: center;
+    max-width: 90%;
   }
+
+  /* Welcome Modal on Every Scan */
+  .welcome-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 22, 18, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    padding: 20px;
+    animation: fadeIn 0.35s ease;
+  }
+  .welcome-card {
+    background: linear-gradient(145deg, #0D2B23 0%, #164438 100%);
+    color: #fff;
+    border: 2px solid var(--gold);
+    border-radius: 26px;
+    padding: 26px 20px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    animation: popUp 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.25);
+  }
+  .welcome-logo {
+    width: 74px;
+    height: 74px;
+    margin: 0 auto 12px;
+    border-radius: 20px;
+    background: #F4EFE6;
+    border: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .welcome-title {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: #FDE68A;
+    margin-bottom: 8px;
+  }
+  .welcome-msg {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+  .welcome-sub {
+    font-size: 0.82rem;
+    color: #D4E2DD;
+    margin-bottom: 18px;
+  }
+  .welcome-btn {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #C89B54 0%, #D97724 100%);
+    color: #fff;
+    font-size: 0.98rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(217, 119, 36, 0.38);
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes popUp { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
 </style>
 </head>
 <body>
+
+<!-- Welcome Greeting Modal (Appears on Every QR Scan) -->
+<div class="welcome-backdrop" id="welcomeModal" onclick="closeWelcome()">
+  <div class="welcome-card" onclick="event.stopPropagation()">
+    <div class="welcome-logo">
+      <svg viewBox="0 0 100 100" width="60" height="60">
+        <circle cx="50" cy="50" r="46" fill="#143D32" stroke="#C89B54" stroke-width="3"/>
+        <text x="50" y="48" text-anchor="middle" fill="#F7EAD3" font-size="25" font-weight="900" font-family="Georgia, serif">A.M</text>
+        <line x1="24" y1="56" x2="76" y2="56" stroke="#C89B54" stroke-width="2"/>
+        <text x="50" y="70" text-anchor="middle" fill="#C89B54" font-size="9.5" font-weight="800" letter-spacing="1">COFFEE &amp; JUICE</text>
+      </svg>
+    </div>
+    <div class="welcome-title">☕ A.M Coffee &amp; Juice</div>
+    <div class="welcome-msg">« እንኳን ደህና መጡ!<br>የደስታና የሳቅ ቀን ይሁንልዎ! » 😊✨</div>
+    <div class="welcome-sub" id="welcomeTableNote">ምግብና መጠጥዎን መርጠው ሲያዙ የ"ዕድል ሞክር (Spin &amp; Win)" ሽልማት ያግኙ!</div>
+    <button class="welcome-btn" onclick="closeWelcome()">🍽️ ወደ ሜኑው ይግቡ (Explore Menu)</button>
+  </div>
+</div>
+
 
 <div class="toast" id="toast">Copied!</div>
 
@@ -502,7 +732,7 @@
   </div>
   <div class="brand-row">
     <div class="brand-logo-svg">
-      <svg viewBox="0 0 100 100" width="58" height="58">
+      <svg viewBox="0 0 100 100" width="56" height="56">
         <circle cx="50" cy="50" r="46" fill="#143D32" stroke="#C89B54" stroke-width="3"/>
         <text x="50" y="48" text-anchor="middle" fill="#F7EAD3" font-size="25" font-weight="900" font-family="Georgia, serif">A.M</text>
         <line x1="24" y1="56" x2="76" y2="56" stroke="#C89B54" stroke-width="2"/>
@@ -513,6 +743,10 @@
       <div class="hero-title">A.M Coffee & Juice</div>
       <div class="hero-sub" id="subTitle">ምርጥ ቁርስ፣ ትኩስ ቡና እና ተፈጥሯዊ ጁሶች — ይምረጡና ይዘዙ</div>
     </div>
+  </div>
+  <div class="promo-banner">
+    <span>🎡</span>
+    <span id="promoBannerText">በQR ሲያዙ የ"ዕድል ሞክር (Spin & Win)" ሽልማት ያግኙ! በቡድን (2+) ሲሆኑ የበለጠ ዕድል እና ቦነስ አለ!</span>
   </div>
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
@@ -534,20 +768,43 @@
 <div class="cart-bar" id="cartBar" onclick="openCart()">
   <div style="display:flex;align-items:center;gap:10px;">
     <span class="cart-badge" id="cartCount">0</span>
-    <span id="viewOrderText" style="font-weight:800;">ትዕዛዝ እና ክፍያ</span>
+    <span id="viewOrderText" style="font-weight:800;">ትዕዛዝ፣ ዕድል እና ክፍያ</span>
   </div>
   <span id="cartTotal" style="font-weight:900;font-size:1.05rem;">0 ETB</span>
 </div>
 
-<!-- Order & Payment Modal -->
+<!-- Order, Spin & Payment Modal -->
 <div class="modal-backdrop" id="cartModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 id="modalTitle" style="font-size:1.15rem;font-weight:900;">የእርስዎ ትዕዛዝ እና ክፍያ</h2>
+      <h2 id="modalTitle" style="font-size:1.15rem;font-weight:900;">የእርስዎ ትዕዛዝ እና ሽልማት</h2>
       <button class="close-btn" onclick="closeCart()">✕</button>
     </div>
     <div id="cartItemsList"></div>
     <textarea id="orderNote" class="note-input" rows="2" placeholder="ተጨማሪ ማሳሰቢያ ካለ እዚህ ይጻፉ (ለምሳሌ፦ ያለ ስኳር፣ በርበሬ ይቀንስ)..."></textarea>
+
+    <!-- Post-Selection Spin & Win Section -->
+    <div class="spin-unlock-card" id="spinUnlockCard">
+      <div class="spin-unlock-title">🎡 የዕድል ሞክር (Spin & Win) ሽልማት!</div>
+      <div class="spin-unlock-desc" id="spinRuleDesc">
+        በትዕዛዝዎ መጠን መሠረት ዕድልዎን ይሞክሩ! በቡድን (2 እና ከዚያ በላይ) ከሆኑ የሁሉንም ስልክ ቁጥር በማስገባት እያንዳንዳችሁ ተጫወቱ!
+      </div>
+      <div class="group-size-row">
+        <span>👥 ስንት ሰው ናችሁ?</span>
+        <div class="group-pills">
+          <button class="grp-btn active" onclick="setGroupCount(1, this)">1 ሰው</button>
+          <button class="grp-btn" onclick="setGroupCount(2, this)">2</button>
+          <button class="grp-btn" onclick="setGroupCount(3, this)">3</button>
+          <button class="grp-btn" onclick="setGroupCount(4, this)">4+</button>
+        </div>
+      </div>
+      <div class="phone-inputs-grid" id="phoneInputsContainer"></div>
+      <div id="wonSummaryInCart" class="won-badges"></div>
+      <button class="btn-spin-launch" id="launchSpinBtn" onclick="openSpinModal()">
+        🎡 ዕድልዎን አሁን ይሞክሩ (Spin Now!)
+      </button>
+    </div>
+
     <div class="extras-bar">
       <span>🙏 ቲፕ (Tip):</span>
       <div class="tip-pills">
@@ -567,6 +824,7 @@
       </div>
     </div>
     <div id="splitResult" style="display:none;text-align:right;font-size:0.82rem;font-weight:800;color:var(--accent);margin-bottom:8px;"></div>
+
     <div class="payment-box">
       <div class="payment-header">💳 የመክፈያ አማራጮች (ለመኮረጅ አካውንቱን ይንኩ)</div>
       <div class="pay-method-grid">
@@ -582,6 +840,7 @@
         </div>
       </div>
     </div>
+
     <div class="summary-row">
       <span id="totalLabel">ጠቅላላ ሂሳብ</span>
       <span id="modalTotal">0 ETB</span>
@@ -596,6 +855,33 @@
       <span>📋</span> <span>ሙሉ ትዕዛዙን ኮፒ አድርግ (Copy Order)</span>
     </button>
     <div class="receipt-box" id="liveReceiptPreview"></div>
+  </div>
+</div>
+
+<!-- Spin Wheel Modal -->
+<div class="modal-backdrop" id="spinModal" style="z-index:150;">
+  <div class="modal" style="text-align:center;">
+    <div class="modal-header">
+      <h2 style="font-size:1.1rem;font-weight:900;">🎡 A.M Coffee & Juice የዕድል መንኮራኩር</h2>
+      <button class="close-btn" onclick="closeSpinModal()">✕</button>
+    </div>
+    <div id="spinTurnBanner" style="font-weight:800;font-size:0.9rem;color:var(--primary);margin-bottom:4px;"></div>
+    <div id="spinTierBadge" style="display:inline-block;background:var(--gold-light);color:#784F12;padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:800;"></div>
+
+    <div class="wheel-wrap">
+      <div class="wheel-pointer"></div>
+      <canvas id="wheelCanvas" width="320" height="320"></canvas>
+    </div>
+
+    <div id="spinResultText" style="min-height:28px;font-weight:900;font-size:0.98rem;color:var(--accent);margin-bottom:8px;"></div>
+    <div class="won-badges" id="modalWonList"></div>
+
+    <button class="btn-spin-launch" id="spinNowBtn" onclick="spinWheelAction()">
+      🎯 አሽከርክር (SPIN!)
+    </button>
+    <button class="action-btn btn-copy" style="margin-top:8px;" onclick="closeSpinModal()">
+      ✅ ጨርሻለሁ — ወደ ትዕዛዙ ተመለስ
+    </button>
   </div>
 </div>
 
@@ -696,8 +982,41 @@ let cart = {};
 let favorites = JSON.parse(localStorage.getItem('am_favs') || '[]');
 let tipAmount = 0;
 let splitCount = 1;
+let groupCount = 1;
 let selectedPayMethod = 'Telebirr (0988591597)';
 let currentOrderId = 'AM-' + Math.floor(1000 + Math.random() * 9000);
+
+// Spin & Win State (Anti-abuse daily phone lock + Order-value & Group-size scaling)
+let groupPlayers = []; // [{phone, spun, prizeText, discountBirr}]
+let currentSpinIndex = 0;
+let isSpinning = false;
+let currentWheelRotation = 0;
+
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+function getUsedPhonesToday() {
+  const stored = JSON.parse(localStorage.getItem('am_spin_phones') || '{}');
+  return stored[getTodayKey()] || [];
+}
+
+function markPhoneUsedToday(phone) {
+  const key = getTodayKey();
+  const stored = JSON.parse(localStorage.getItem('am_spin_phones') || '{}');
+  const list = stored[key] || [];
+  if (!list.includes(phone)) list.push(phone);
+  stored[key] = list;
+  localStorage.setItem('am_spin_phones', JSON.stringify(stored));
+}
+
+function normalizePhone(raw) {
+  let p = raw.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+  if (p.startsWith('+251')) p = '0' + p.slice(4);
+  if (p.startsWith('251')) p = '0' + p.slice(3);
+  return p;
+}
 
 const tableSelect = document.getElementById('tableSelect');
 const urlParams = new URLSearchParams(window.location.search);
@@ -716,7 +1035,7 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.style.display = 'block';
-  setTimeout(() => { t.style.display = 'none'; }, 2200);
+  setTimeout(() => { t.style.display = 'none'; }, 2600);
 }
 
 function toggleFav(id, e) {
@@ -760,6 +1079,241 @@ function setSplit(num, btn) {
   updateModalTotal();
 }
 
+function setGroupCount(num, btn) {
+  groupCount = num;
+  btn.parentElement.querySelectorAll('.grp-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPhoneInputs();
+}
+
+function renderPhoneInputs() {
+  const container = document.getElementById('phoneInputsContainer');
+  const existing = Array.from(container.querySelectorAll('input')).map(i => i.value);
+  let html = '';
+  for (let i = 0; i < groupCount; i++) {
+    const val = existing[i] || (groupPlayers[i] ? groupPlayers[i].phone : '');
+    const locked = groupPlayers[i] && groupPlayers[i].spun ? 'disabled' : '';
+    const label = groupCount === 1
+      ? 'የእርስዎ ስልክ ቁጥር (ለምሳሌ 0911...)'
+      : `የ ${i + 1}ኛ ሰው ስልክ ቁጥር (09...)`;
+    html += `<input type="tel" class="phone-field" id="grpPhone_${i}" placeholder="${label}" value="${val}" ${locked}>`;
+  }
+  container.innerHTML = html;
+}
+
+// Low-cost cafe-friendly prizes scaled by order subtotal & group size
+function getWheelSegments() {
+  const sub = getSubtotal();
+  const isGroup = groupCount >= 2;
+  const isHighOrder = sub >= 600;
+
+  if (isGroup && isHighOrder) {
+    return [
+      { label: 'ነፃ ሻይ ☕', prize: 'ነፃ ትኩስ ሻይ (Free Tea)', discount: 0, weight: 30, color: '#143D32' },
+      { label: '5% ቅናሽ 🏷️', prize: '5% የቡድን ቅናሽ', discount: Math.round(sub * 0.05), weight: 22, color: '#D97724' },
+      { label: 'ነፃ ዝንጅብል ሻይ', prize: 'ነፃ የዝንጅብል ሻይ (Free Ginger Tea)', discount: 0, weight: 20, color: '#1E5647' },
+      { label: '30 ETB ቅናሽ', prize: '30 ETB የቦነስ ቅናሽ', discount: 30, weight: 13, color: '#B45309' },
+      { label: 'ነፃ ውሃ 💧', prize: 'ነፃ የታሸገ ውሃ (Free Water)', discount: 0, weight: 10, color: '#0F766E' },
+      { label: 'እንደገና ሞክር', prize: 'ለሚቀጥለው ጊዜ መልካም ዕድል', discount: 0, weight: 5, color: '#4B5563' }
+    ];
+  } else if (isGroup || sub >= 350) {
+    return [
+      { label: 'ነፃ ሻይ ☕', prize: 'ነፃ ትኩስ ሻይ (Free Tea)', discount: 0, weight: 28, color: '#143D32' },
+      { label: '20 ETB ቅናሽ', prize: '20 ETB ቅናሽ', discount: 20, weight: 20, color: '#D97724' },
+      { label: 'ነፃ ውሃ 💧', prize: 'ነፃ የታሸገ ውሃ (Free Water)', discount: 0, weight: 22, color: '#0F766E' },
+      { label: '15 ETB ቅናሽ', prize: '15 ETB ቅናሽ', discount: 15, weight: 15, color: '#B45309' },
+      { label: 'እንደገና ሞክር', prize: 'ለሚቀጥለው ጊዜ መልካም ዕድል', discount: 0, weight: 15, color: '#4B5563' }
+    ];
+  } else {
+    // Small single order (< 350 ETB): very low cost to cafe owner
+    return [
+      { label: 'ነፃ ሻይ ☕', prize: 'ነፃ ትኩስ ሻይ (Free Tea)', discount: 0, weight: 25, color: '#143D32' },
+      { label: '10 ETB ቅናሽ', prize: '10 ETB ቅናሽ', discount: 10, weight: 20, color: '#D97724' },
+      { label: 'ነፃ ውሃ 💧', prize: 'ነፃ የታሸገ ውሃ (Free Water)', discount: 0, weight: 20, color: '#0F766E' },
+      { label: 'መልካም ዕድል', prize: 'ለሚቀጥለው ጊዜ መልካም ዕድል', discount: 0, weight: 35, color: '#4B5563' }
+    ];
+  }
+}
+
+function drawWheel(segments) {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const cx = 160, cy = 160, r = 155;
+  ctx.clearRect(0, 0, 320, 320);
+  const arc = (2 * Math.PI) / segments.length;
+
+  segments.forEach((seg, i) => {
+    const start = i * arc - Math.PI / 2;
+    const end = start + arc;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, end);
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    ctx.strokeStyle = '#F7EAD3';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(seg.label, r - 14, 5);
+    ctx.restore();
+  });
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, 2 * Math.PI);
+  ctx.fillStyle = '#C89B54';
+  ctx.fill();
+  ctx.fillStyle = '#143D32';
+  ctx.font = '900 11px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('A.M', cx, cy + 4);
+}
+
+function openSpinModal() {
+  const usedToday = getUsedPhonesToday();
+  const newPlayers = [];
+  const seenInGroup = new Set();
+
+  for (let i = 0; i < groupCount; i++) {
+    const inp = document.getElementById(`grpPhone_${i}`);
+    const phone = normalizePhone(inp ? inp.value : '');
+    if (!/^09\d{8}$/.test(phone) && !/^07\d{8}$/.test(phone)) {
+      showToast(`እባክዎ ትክክለኛ የ ${i + 1}ኛ ሰው ስልክ ቁጥር ያስገቡ (09... ወይም 07...)`);
+      return;
+    }
+    if (seenInGroup.has(phone)) {
+      showToast(`ስልክ ቁጥር ${phone} ተደግሟል! እያንዳንዱ ሰው የራሱን ስልክ ያስገባ።`);
+      return;
+    }
+    seenInGroup.add(phone);
+
+    const existingPlayer = groupPlayers.find(p => p.phone === phone);
+    if (existingPlayer) {
+      newPlayers.push(existingPlayer);
+    } else {
+      if (usedToday.includes(phone)) {
+        showToast(`ቁጥር ${phone} ዛሬ ተጫውቷል! በቀን 1 ጊዜ ብቻ ይፈቀዳል።`);
+        return;
+      }
+      newPlayers.push({ phone, spun: false, prizeText: '', discountBirr: 0 });
+    }
+  }
+
+  groupPlayers = newPlayers;
+  currentSpinIndex = groupPlayers.findIndex(p => !p.spun);
+  if (currentSpinIndex === -1) currentSpinIndex = 0;
+
+  const segments = getWheelSegments();
+  drawWheel(segments);
+  updateSpinModalUI();
+  document.getElementById('spinModal').classList.add('open');
+}
+
+function updateSpinModalUI() {
+  const nextIdx = groupPlayers.findIndex(p => !p.spun);
+  const tierBadge = document.getElementById('spinTierBadge');
+  const turnBanner = document.getElementById('spinTurnBanner');
+  const spinBtn = document.getElementById('spinNowBtn');
+
+  tierBadge.textContent = groupCount >= 2
+    ? `🔥 የቡድን ቦነስ ተከፍቷል (${groupCount} ተጫዋቾች)`
+    : `🎯 የግል ዕድል ሙከራ (1 ተጫዋች)`;
+
+  if (nextIdx !== -1) {
+    currentSpinIndex = nextIdx;
+    turnBanner.textContent = `ተራው የ ${nextIdx + 1}ኛ ሰው ነው (${groupPlayers[nextIdx].phone})`;
+    spinBtn.disabled = false;
+    spinBtn.style.opacity = '1';
+    spinBtn.textContent = `🎯 አሽከርክር (${nextIdx + 1}/${groupPlayers.length})`;
+  } else {
+    turnBanner.textContent = `✅ ሁሉም የቡድኑ አባላት ተጫውተዋል!`;
+    spinBtn.disabled = true;
+    spinBtn.style.opacity = '0.55';
+    spinBtn.textContent = `✅ ጨዋታው ተጠናቋል`;
+  }
+
+  const listHtml = groupPlayers
+    .filter(p => p.spun)
+    .map(p => `<span class="won-pill">📱 ${p.phone}: ${p.prizeText}</span>`)
+    .join('');
+  document.getElementById('modalWonList').innerHTML = listHtml;
+}
+
+function spinWheelAction() {
+  if (isSpinning) return;
+  const player = groupPlayers[currentSpinIndex];
+  if (!player || player.spun) return;
+
+  isSpinning = true;
+  document.getElementById('spinResultText').textContent = '🎡 እየተሽከረከረ ነው...';
+  const segments = getWheelSegments();
+
+  // Weighted random pick so cafe owner never loses money
+  const totalWeight = segments.reduce((acc, s) => acc + s.weight, 0);
+  let rand = Math.random() * totalWeight;
+  let chosenIdx = 0;
+  for (let i = 0; i < segments.length; i++) {
+    if (rand < segments[i].weight) {
+      chosenIdx = i;
+      break;
+    }
+    rand -= segments[i].weight;
+  }
+
+  const segAngle = 360 / segments.length;
+  const targetCenter = chosenIdx * segAngle + segAngle / 2;
+  const extraSpins = 360 * 5;
+  const stopAngle = (360 - targetCenter) % 360;
+  currentWheelRotation += extraSpins + stopAngle - (currentWheelRotation % 360);
+
+  const canvas = document.getElementById('wheelCanvas');
+  canvas.style.transform = `rotate(${currentWheelRotation}deg)`;
+
+  setTimeout(() => {
+    const won = segments[chosenIdx];
+    player.spun = true;
+    player.prizeText = won.prize;
+    player.discountBirr = won.discount;
+    markPhoneUsedToday(player.phone);
+
+    document.getElementById('spinResultText').textContent = `🎉 እንኳን ደስ አለዎት (${player.phone})፦ ${won.prize}!`;
+    isSpinning = false;
+    updateSpinModalUI();
+    renderWonSummaryInCart();
+    updateModalTotal();
+    updateReceiptPreview();
+  }, 3900);
+}
+
+function closeSpinModal() {
+  document.getElementById('spinModal').classList.remove('open');
+  renderPhoneInputs();
+}
+
+function renderWonSummaryInCart() {
+  const spunPlayers = groupPlayers.filter(p => p.spun);
+  const el = document.getElementById('wonSummaryInCart');
+  if (!spunPlayers.length) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = spunPlayers
+    .map(p => `<span class="won-pill">🎁 ${p.phone}: ${p.prizeText}</span>`)
+    .join('');
+}
+
+function getTotalDiscount() {
+  const rawDisc = groupPlayers.reduce((sum, p) => sum + (p.spun ? p.discountBirr : 0), 0);
+  // Cap maximum discount to 15% of subtotal to strictly protect cafe profit margin
+  const maxCap = Math.floor(getSubtotal() * 0.15);
+  return Math.min(rawDisc, maxCap);
+}
+
 function setTagFilter(tag) {
   activeTag = tag;
   document.getElementById('qfAll').classList.toggle('active', tag === 'all');
@@ -776,14 +1330,27 @@ function toggleLang() {
   document.getElementById('subTitle').textContent = lang === 'am'
     ? 'ምርጥ ቁርስ፣ ትኩስ ቡና እና ተፈጥሯዊ ጁሶች — ይምረጡና ይዘዙ'
     : 'Fresh Breakfast, Ethiopian Coffee & Natural Juices — Order Direct';
+  document.getElementById('promoBannerText').textContent = lang === 'am'
+    ? 'በQR ሲያዙ የ"ዕድል ሞክር (Spin & Win)" ሽልማት ያግኙ! በቡድን (2+) ሲሆኑ የበለጠ ዕድል እና ቦነስ አለ!'
+    : 'Order via QR to unlock Spin & Win rewards! Groups (2+) get extra spins & bonuses!';
   document.getElementById('searchInput').placeholder = lang === 'am' ? 'ምግብ ወይም መጠጥ ይፈልጉ...' : 'Search food or drinks...';
-  document.getElementById('viewOrderText').textContent = lang === 'am' ? 'ትዕዛዝ እና ክፍያ' : 'Order & Pay';
-  document.getElementById('modalTitle').textContent = lang === 'am' ? 'የእርስዎ ትዕዛዝ እና ክፍያ' : 'Your Order & Payment';
+  document.getElementById('viewOrderText').textContent = lang === 'am' ? 'ትዕዛዝ፣ ዕድል እና ክፍያ' : 'Order, Spin & Pay';
+  document.getElementById('modalTitle').textContent = lang === 'am' ? 'የእርስዎ ትዕዛዝ እና ሽልማት' : 'Your Order & Rewards';
   document.getElementById('totalLabel').textContent = lang === 'am' ? 'ጠቅላላ ሂሳብ' : 'Total Amount';
   Array.from(tableSelect.options).forEach((opt, idx) => {
     opt.textContent = lang === 'am' ? `ጠረጴዛ #${idx + 1}` : `Table #${idx + 1}`;
   });
-  renderTabs();
+  
+function closeWelcome() {
+  const wm = document.getElementById('welcomeModal');
+  if (wm) wm.style.display = 'none';
+}
+if (presetTable) {
+  document.getElementById('welcomeTableNote').textContent =
+    `ጠረጴዛ #${presetTable} — ምግብና መጠጥዎን መርጠው ሲያዙ የ"ዕድል ሞክር" ሽልማት ያግኙ!`;
+}
+
+renderTabs();
   renderMenu();
 }
 
@@ -798,7 +1365,17 @@ function renderTabs() {
 
 function setCat(id) {
   activeCat = id;
-  renderTabs();
+  
+function closeWelcome() {
+  const wm = document.getElementById('welcomeModal');
+  if (wm) wm.style.display = 'none';
+}
+if (presetTable) {
+  document.getElementById('welcomeTableNote').textContent =
+    `ጠረጴዛ #${presetTable} — ምግብና መጠጥዎን መርጠው ሲያዙ የ"ዕድል ሞክር" ሽልማት ያግኙ!`;
+}
+
+renderTabs();
   renderMenu();
 }
 
@@ -877,8 +1454,13 @@ function updateCartBar() {
 }
 
 function updateModalTotal() {
-  const grandTotal = getSubtotal() + tipAmount;
-  document.getElementById('modalTotal').textContent = `${grandTotal} ETB`;
+  const sub = getSubtotal();
+  const discount = getTotalDiscount();
+  const grandTotal = Math.max(0, sub - discount + tipAmount);
+  document.getElementById('modalTotal').textContent = discount > 0
+    ? `${grandTotal} ETB (ከ ${discount} ETB ቅናሽ በኋላ)`
+    : `${grandTotal} ETB`;
+
   const splitEl = document.getElementById('splitResult');
   if (splitCount > 1) {
     const perPerson = Math.ceil(grandTotal / splitCount);
@@ -895,10 +1477,13 @@ function buildOrderMessage() {
   const tableNum = tableSelect.value;
   const note = document.getElementById('orderNote').value.trim();
   const subTotal = getSubtotal();
-  const grandTotal = subTotal + tipAmount;
+  const discount = getTotalDiscount();
+  const grandTotal = Math.max(0, subTotal - discount + tipAmount);
+  const spunPlayers = groupPlayers.filter(p => p.spun);
+
   let lines = [
     `☕ A.M Coffee & Juice — አዲስ ትዕዛዝ`,
-    `🆔 Order: ${currentOrderId} | 🪑 ጠረጴዛ #${tableNum}`,
+    `🆔 Order: ${currentOrderId} | 🪑 ጠረጴዛ #${tableNum} | 👥 ብዛት: ${groupCount} ሰው`,
     `------------------------`
   ];
   for (const [id, qty] of Object.entries(cart)) {
@@ -907,8 +1492,15 @@ function buildOrderMessage() {
     lines.push(`• ${qty}x ${item.am} (${item.en}) = ${sub} ETB`);
   }
   lines.push(`------------------------`);
-  if (tipAmount > 0) lines.push(`🙏 ቲፕ (Tip): ${tipAmount} ETB`);
-  lines.push(`💰 ጠቅላላ (Total): ${grandTotal} ETB`);
+  if (spunPlayers.length > 0) {
+    lines.push(`🎡 የ Spin & Win ሽልማቶች:`);
+    spunPlayers.forEach(p => {
+      lines.push(`  - 📱 ${p.phone}: ${p.prizeText}`);
+    });
+  }
+  if (discount > 0) lines.push(`🏷️ የሽልማት ቅናሽ: -${discount} ETB`);
+  if (tipAmount > 0) lines.push(`🙏 ቲፕ (Tip): +${tipAmount} ETB`);
+  lines.push(`💰 ጠቅላላ ክፍያ (Total): ${grandTotal} ETB`);
   lines.push(`💳 ክፍያ (Payment): ${selectedPayMethod}`);
   if (note) lines.push(`📝 ማሳሰቢያ (Note): ${note}`);
   return lines.join('\n');
@@ -934,6 +1526,8 @@ function openCart() {
       </div>
     `;
   }).join('');
+  renderPhoneInputs();
+  renderWonSummaryInCart();
   updateModalTotal();
   updateReceiptPreview();
   document.getElementById('cartModal').classList.add('open');
@@ -975,6 +1569,16 @@ function copyOrderText() {
   navigator.clipboard.writeText(msg).then(() => {
     showToast(lang === 'am' ? 'ሙሉ ትዕዛዙ ኮፒ ሆኗል!' : 'Order details copied!');
   });
+}
+
+
+function closeWelcome() {
+  const wm = document.getElementById('welcomeModal');
+  if (wm) wm.style.display = 'none';
+}
+if (presetTable) {
+  document.getElementById('welcomeTableNote').textContent =
+    `ጠረጴዛ #${presetTable} — ምግብና መጠጥዎን መርጠው ሲያዙ የ"ዕድል ሞክር" ሽልማት ያግኙ!`;
 }
 
 renderTabs();
